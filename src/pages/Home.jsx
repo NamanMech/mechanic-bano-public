@@ -1,15 +1,17 @@
+// src/pages/Home.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Spinner from '../components/Spinner';
 
 export default function Home() {
-  const [welcome, setWelcome] = useState(null);
+  const [welcomeNote, setWelcomeNote] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchWelcome = async () => {
+  const fetchWelcomeNote = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'welcome');
-      setWelcome(response.data);
+      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/welcome');
+      if (response.data.length > 0) {
+        setWelcomeNote(response.data[0]);
+      }
     } catch (error) {
       alert('Error fetching welcome note');
     } finally {
@@ -18,15 +20,17 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchWelcome();
+    fetchWelcomeNote();
   }, []);
 
-  if (loading) return <Spinner />;
+  if (loading) {
+    return <div className="spinner"></div>;
+  }
 
   return (
     <div>
-      <h2>{welcome ? welcome.title : 'Welcome to Mechanic Bano'}</h2>
-      <p>{welcome ? welcome.message : 'Learn to repair your bike with us!'}</p>
+      <h2>{welcomeNote?.title || 'Welcome to Mechanic Bano'}</h2>
+      <p>{welcomeNote?.message || 'Learn to repair bikes with our easy tutorials.'}</p>
     </div>
   );
 }
