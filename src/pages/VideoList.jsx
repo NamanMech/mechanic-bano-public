@@ -6,7 +6,7 @@ export default function VideoList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const videosPerPage = 4;
+  const [videosPerPage] = useState(4);
 
   const fetchVideos = async () => {
     try {
@@ -21,13 +21,12 @@ export default function VideoList() {
     fetchVideos();
   }, []);
 
-  const filteredVideos = videos.filter((video) => {
+  const filteredVideos = videos.filter(video => {
     const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = filterCategory === 'all' || video.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Pagination calculation
   const indexOfLastVideo = currentPage * videosPerPage;
   const indexOfFirstVideo = indexOfLastVideo - videosPerPage;
   const currentVideos = filteredVideos.slice(indexOfFirstVideo, indexOfLastVideo);
@@ -39,8 +38,7 @@ export default function VideoList() {
 
   return (
     <div>
-      {/* Search and Filter Controls */}
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      <div className="search-filter-bar">
         <input
           type="text"
           placeholder="Search videos by title..."
@@ -49,7 +47,6 @@ export default function VideoList() {
             setSearchQuery(e.target.value);
             setCurrentPage(1);
           }}
-          style={{ padding: '10px', flex: '1' }}
         />
         <select
           value={filterCategory}
@@ -57,7 +54,6 @@ export default function VideoList() {
             setFilterCategory(e.target.value);
             setCurrentPage(1);
           }}
-          style={{ padding: '10px' }}
         >
           <option value="all">All Categories</option>
           <option value="free">Free</option>
@@ -65,7 +61,6 @@ export default function VideoList() {
         </select>
       </div>
 
-      {/* Video Cards */}
       {currentVideos.length === 0 ? (
         <p>No videos available</p>
       ) : (
@@ -86,22 +81,13 @@ export default function VideoList() {
         </div>
       )}
 
-      {/* Pagination Buttons */}
       {totalPages > 1 && (
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <div className="pagination">
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index + 1}
               onClick={() => handlePageChange(index + 1)}
-              style={{
-                margin: '0 5px',
-                padding: '8px 12px',
-                backgroundColor: currentPage === index + 1 ? '#1e88e5' : '#ddd',
-                color: currentPage === index + 1 ? '#fff' : '#000',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              className={currentPage === index + 1 ? 'active' : ''}
             >
               {index + 1}
             </button>
