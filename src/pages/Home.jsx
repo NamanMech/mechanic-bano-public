@@ -8,8 +8,8 @@ export default function Home() {
   const fetchWelcomeNote = async () => {
     try {
       const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/welcome');
-      if (response.data.length > 0) {
-        setWelcomeNote(response.data[0]);
+      if (response.data && response.data.title) { // ✅ FIXED
+        setWelcomeNote(response.data);
       }
     } catch (error) {
       alert('Error fetching welcome note');
