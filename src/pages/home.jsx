@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Spinner from '../components/Spinner';
+// Existing imports remain same
 
 export default function Home() {
   const [welcomeNote, setWelcomeNote] = useState('');
