@@ -1,6 +1,6 @@
+// src/pages/pdf.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Spinner from '../components/Spinner';
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
@@ -8,7 +8,7 @@ export default function PDFList() {
 
   const fetchPdfs = async () => {
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL + 'pdf');
+      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/pdf');
       setPdfs(response.data);
     } catch (error) {
       alert('Error fetching PDFs');
@@ -21,27 +21,30 @@ export default function PDFList() {
     fetchPdfs();
   }, []);
 
-  if (loading) return <Spinner />;
+  if (loading) {
+    return <div className="spinner"></div>;
+  }
 
   return (
     <div>
+      <h2>All PDFs</h2>
       {pdfs.length === 0 ? (
         <p>No PDFs available</p>
       ) : (
-        pdfs.map((pdf) => (
-          <div className="video-card" key={pdf._id}>
-            <h3>{pdf.title}</h3>
-            <iframe
-              src={pdf.embedLink}
-              width="350"
-              height="200"
-              title={pdf.title}
-              frameBorder="0"
-              allow="autoplay"
-            ></iframe>
-            <p className="category-badge">{pdf.category}</p>
-          </div>
-        ))
+        <div className="video-grid">
+          {pdfs.map((pdf) => (
+            <div className="video-card" key={pdf._id}>
+              <h3>{pdf.title}</h3>
+              <iframe
+                src={pdf.embedLink}
+                title={pdf.title}
+                frameBorder="0"
+                allow="autoplay"
+              ></iframe>
+              <span className="category-badge">{pdf.category}</span>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
