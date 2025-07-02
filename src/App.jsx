@@ -6,22 +6,29 @@ import PDFList from './pages/pdf';
 import axios from 'axios';
 
 export default function App() {
-  const [siteName, setSiteName] = useState('Mechanic Bano');
+  const [siteName, setSiteName] = useState('');
+  const [loading, setLoading] = useState(true); // Track loading status
 
   const fetchSiteName = async () => {
     try {
       const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/sitename');
-      if (response.data && response.data.name) { // ✅ FIXED
+      if (response.data && response.data.name) {
         setSiteName(response.data.name);
       }
     } catch (error) {
       console.error('Error fetching site name');
+    } finally {
+      setLoading(false); // API done
     }
   };
 
   useEffect(() => {
     fetchSiteName();
   }, []);
+
+  if (loading) {
+    return <div className="spinner"></div>; // You can replace with your spinner UI
+  }
 
   return (
     <Router>
