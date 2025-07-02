@@ -1,5 +1,3 @@
-// src/components/VideoList.jsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -20,23 +18,21 @@ export default function VideoList() {
   }, []);
 
   return (
-    <div>
+    <div className="video-grid">
       {videos.length === 0 ? (
         <p>No videos available</p>
       ) : (
         videos.map((video) => (
           <div className="video-card" key={video._id}>
-            <h3>{video.title}</h3>
             <iframe
-              width="350"
-              height="200"
-              src={video.embedLink} // ✅ Correct field used now
+              src={video.embedLink}
               title={video.title}
               frameBorder="0"
               allowFullScreen
             ></iframe>
+            <h3>{video.title}</h3>
             <p>{video.description}</p>
-            <p style={{ fontWeight: 'bold' }}>Category: {video.category}</p>
+            <span className="category-badge">{video.category}</span>
           </div>
         ))
       )}
