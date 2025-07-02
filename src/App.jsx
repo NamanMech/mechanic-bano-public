@@ -11,8 +11,8 @@ export default function App() {
   const fetchSiteName = async () => {
     try {
       const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/sitename');
-      if (response.data.length > 0) {
-        setSiteName(response.data[0].name);
+      if (response.data && response.data.name) { // ✅ FIXED
+        setSiteName(response.data.name);
       }
     } catch (error) {
       console.error('Error fetching site name');
