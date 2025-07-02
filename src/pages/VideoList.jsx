@@ -1,3 +1,5 @@
+// src/components/VideoList.jsx
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -28,7 +30,7 @@ export default function VideoList() {
             <iframe
               width="350"
               height="200"
-              src={video.link}
+              src={video.embedLink} // ✅ Correct field used now
               title={video.title}
               frameBorder="0"
               allowFullScreen
