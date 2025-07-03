@@ -16,10 +16,10 @@ export default function Profile() {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/');
-  };
-
+  localStorage.removeItem('user');
+  navigate('/');
+  window.location.reload(); // Force refresh to reset state in App
+};
   if (!user) return null;
 
   return (
