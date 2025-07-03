@@ -1,6 +1,6 @@
-// src/pages/pdf.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Spinner from '../components/Spinner';
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
@@ -22,7 +22,7 @@ export default function PDFList() {
   }, []);
 
   if (loading) {
-    return <div className="spinner"></div>;
+    return <Spinner />;
   }
 
   return (
