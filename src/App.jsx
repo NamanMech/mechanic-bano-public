@@ -5,11 +5,13 @@ import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
 import axios from 'axios';
 import FooterMenu from './components/FooterMenu';
+import Navbar from './components/Navbar';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
   const [isDark, setIsDark] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const fetchSiteName = async () => {
     try {
@@ -26,6 +28,13 @@ export default function App() {
 
   useEffect(() => {
     fetchSiteName();
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const toggleTheme = () => {
@@ -39,19 +48,15 @@ export default function App() {
 
   return (
     <Router>
-      <header className="site-header">
-        <h1>{siteName}</h1>
-      </header>
-
-      <div className="container">
+      {!isMobile && <Navbar />}
+      <div className="container" style={{ paddingBottom: isMobile ? '60px' : '0' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/videos" element={<VideoList />} />
           <Route path="/pdfs" element={<PDFList />} />
         </Routes>
       </div>
-
-      <FooterMenu isDark={isDark} toggleTheme={toggleTheme} />
+      {isMobile && <FooterMenu isDark={isDark} toggleTheme={toggleTheme} />}
     </Router>
   );
 }
