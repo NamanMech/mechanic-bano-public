@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { HomeIcon, VideoIcon, FileTextIcon } from 'lucide-react';
+import { HomeIcon, VideoIcon, FileTextIcon, UserIcon } from 'lucide-react';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
 import axios from 'axios';
+import GoogleAuth from './components/GoogleAuth';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   const fetchSiteName = async () => {
     try {
@@ -39,7 +41,8 @@ export default function App() {
         <nav style={{ marginTop: '10px' }}>
           <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
           <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
-          <Link to="/pdfs" style={{ color: 'white' }}>PDFs</Link>
+          <Link to="/pdfs" style={{ marginRight: '15px', color: 'white' }}>PDFs</Link>
+          {user && <Link to="/profile" style={{ color: 'white' }}>Profile</Link>}
         </nav>
       </header>
 
@@ -49,15 +52,21 @@ export default function App() {
       </div>
 
       <div className="container">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/videos" element={<VideoList />} />
-          <Route path="/pdfs" element={<PDFList />} />
-        </Routes>
+        {user ? (
+          <>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/videos" element={<VideoList />} />
+              <Route path="/pdfs" element={<PDFList />} />
+              <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+            </Routes>
+          </>
+        ) : (
+          <GoogleAuth onSuccess={setUser} />
+        )}
       </div>
 
-      {/* Footer Menu for Mobile */}
-      <FooterMenu />
+      {user && <FooterMenu />}
     </Router>
   );
 }
@@ -81,6 +90,21 @@ function FooterMenu() {
         <FileTextIcon />
         <span>PDFs</span>
       </Link>
+      <Link to="/profile" className="footer-item" style={{ color: isActive('/profile') ? '#1e88e5' : '#555' }}>
+        <UserIcon />
+        <span>Profile</span>
+      </Link>
+    </div>
+  );
+}
+
+function Profile({ user, setUser }) {
+  return (
+    <div>
+      <h2>Profile</h2>
+      <p>Name: {user.name}</p>
+      <p>Email: {user.email}</p>
+      <button onClick={() => window.location.reload()}>Logout</button>
     </div>
   );
 }
