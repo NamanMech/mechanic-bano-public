@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HomeIcon, VideoIcon, FileTextIcon } from 'lucide-react';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
-import FooterMenu from './components/FooterMenu';
 import axios from 'axios';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
-  const [pageStatus, setPageStatus] = useState({});
   const [loading, setLoading] = useState(true);
 
   const fetchSiteName = async () => {
@@ -19,19 +18,6 @@ export default function App() {
       }
     } catch (error) {
       console.error('Error fetching site name');
-    }
-  };
-
-  const fetchPageControl = async () => {
-    try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/pagecontrol');
-      const statusMap = {};
-      response.data.forEach(item => {
-        statusMap[item.page] = item.enabled;
-      });
-      setPageStatus(statusMap);
-    } catch (error) {
-      console.error('Error fetching page control');
     } finally {
       setLoading(false);
     }
@@ -39,7 +25,6 @@ export default function App() {
 
   useEffect(() => {
     fetchSiteName();
-    fetchPageControl();
   }, []);
 
   if (loading) {
@@ -53,22 +38,49 @@ export default function App() {
         <h1>{siteName}</h1>
         <nav style={{ marginTop: '10px' }}>
           <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
-          {pageStatus.videos && <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>}
-          {pageStatus.pdfs && <Link to="/pdfs" style={{ color: 'white' }}>PDFs</Link>}
+          <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
+          <Link to="/pdfs" style={{ color: 'white' }}>PDFs</Link>
         </nav>
       </header>
 
-      {/* Page Content */}
+      {/* Mobile Header */}
+      <div className="mobile-header">
+        {siteName}
+      </div>
+
       <div className="container">
         <Routes>
           <Route path="/" element={<Home />} />
-          {pageStatus.videos && <Route path="/videos" element={<VideoList />} />}
-          {pageStatus.pdfs && <Route path="/pdfs" element={<PDFList />} />}
+          <Route path="/videos" element={<VideoList />} />
+          <Route path="/pdfs" element={<PDFList />} />
         </Routes>
       </div>
 
-      {/* Mobile Footer Menu */}
-      <FooterMenu pageStatus={pageStatus} />
+      {/* Footer Menu for Mobile */}
+      <FooterMenu />
     </Router>
+  );
+}
+
+function FooterMenu() {
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
+  return (
+    <div className="footer-menu">
+      <Link to="/" className="footer-item" style={{ color: isActive('/') ? '#1e88e5' : '#555' }}>
+        <HomeIcon />
+        <span>Home</span>
+      </Link>
+      <Link to="/videos" className="footer-item" style={{ color: isActive('/videos') ? '#1e88e5' : '#555' }}>
+        <VideoIcon />
+        <span>Videos</span>
+      </Link>
+      <Link to="/pdfs" className="footer-item" style={{ color: isActive('/pdfs') ? '#1e88e5' : '#555' }}>
+        <FileTextIcon />
+        <span>PDFs</span>
+      </Link>
+    </div>
   );
 }
