@@ -1,4 +1,3 @@
-// src/pages/VideoList.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -22,12 +21,11 @@ export default function VideoList() {
   }, []);
 
   if (loading) {
-    return <div className="spinner"></div>;
+    return <div className="loader"></div>;
   }
 
   return (
     <div>
-      <h2>All Tutorials</h2>
       {videos.length === 0 ? (
         <p>No videos available</p>
       ) : (
@@ -36,9 +34,12 @@ export default function VideoList() {
             <div className="video-card" key={video._id}>
               <h3>{video.title}</h3>
               <iframe
+                width="100%"
+                height="300"
                 src={video.embedLink}
                 title={video.title}
                 frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
               <p>{video.description}</p>
