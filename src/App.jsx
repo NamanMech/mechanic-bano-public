@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
 import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
+import Navbar from './components/Navbar';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const fetchSiteName = async () => {
     try {
@@ -34,33 +33,7 @@ export default function App() {
 
   return (
     <Router>
-      <header className="navbar">
-        <h1>{siteName}</h1>
-        <div className="menu-icon" onClick={() => setMenuOpen(!menuOpen)}>
-          &#9776;
-        </div>
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.nav
-              className="mobile-menu"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ duration: 0.3 }}
-            >
-              <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
-              <Link to="/videos" onClick={() => setMenuOpen(false)}>Videos</Link>
-              <Link to="/pdfs" onClick={() => setMenuOpen(false)}>PDFs</Link>
-            </motion.nav>
-          )}
-        </AnimatePresence>
-        <nav className="desktop-menu">
-          <Link to="/">Home</Link>
-          <Link to="/videos">Videos</Link>
-          <Link to="/pdfs">PDFs</Link>
-        </nav>
-      </header>
-
+      <Navbar siteName={siteName} />
       <div className="container">
         <Routes>
           <Route path="/" element={<Home />} />
