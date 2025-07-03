@@ -21,7 +21,7 @@ export default function VideoList() {
   }, []);
 
   if (loading) {
-    return <div className="loader"></div>;
+    return <div className="spinner"></div>;
   }
 
   return (
