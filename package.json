@@ -1,21 +1,23 @@
 {
   "name": "mechanic-bano-public",
   "version": "1.0.0",
+  "description": "Public site for Mechanic Bano",
+  "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "serve": "vite preview"
   },
   "dependencies": {
-  "axios": "^1.6.8",
-  "framer-motion": "^11.0.0",
-  "react": "^18.2.0",
-  "react-dom": "^18.2.0",
-  "react-router-dom": "^6.23.0",
-  "lucide-react": "^0.292.0"  
-},
+    "axios": "^1.7.2",
+    "firebase": "^10.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "lucide-react": "^0.292.0"
+  },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.3",
-    "vite": "^5.0.7"
+    "@vitejs/plugin-react": "^4.1.0",
+    "vite": "^4.4.9"
   }
 }
