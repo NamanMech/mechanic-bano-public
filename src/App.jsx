@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
 import axios from 'axios';
-import Spinner from './components/Spinner';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
@@ -28,7 +27,7 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return <Spinner />;
+    return <div className="spinner"></div>;
   }
 
   return (
