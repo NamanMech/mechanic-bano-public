@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { HomeIcon, VideoIcon, FileTextIcon, UserIcon } from 'lucide-react';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
@@ -12,7 +11,7 @@ import axios from 'axios';
 export default function App() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);
+  const [user, setUser] = useState(null);
 
   const fetchSiteName = async () => {
     try {
@@ -29,6 +28,10 @@ export default function App() {
 
   useEffect(() => {
     fetchSiteName();
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   if (loading) {
@@ -36,34 +39,34 @@ export default function App() {
   }
 
   return (
-    <GoogleOAuthProvider clientId="303726026304-0q7mt0gsqervgmkgp8tkck7nviluek1l.apps.googleusercontent.com">
-      <Router>
-        <Header siteName={siteName} />
-        <div className="container">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/videos" element={<VideoList />} />
-            <Route path="/pdfs" element={<PDFList />} />
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </div>
-        <FooterMenu user={user} />
-        {!user && <GoogleAuth onLogin={setUser} />}
-      </Router>
-    </GoogleOAuthProvider>
-  );
-}
+    <Router>
+      <header className="desktop-navbar">
+        <h1>{siteName}</h1>
+        <nav style={{ marginTop: '10px' }}>
+          <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
+          <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
+          <Link to="/pdfs" style={{ marginRight: '15px', color: 'white' }}>PDFs</Link>
+          {user ? (
+            <Link to="/profile" style={{ color: 'white' }}>Profile</Link>
+          ) : null}
+        </nav>
+      </header>
 
-function Header({ siteName }) {
-  return (
-    <header className="desktop-navbar">
-      <h1>{siteName}</h1>
-      <nav style={{ marginTop: '10px' }}>
-        <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
-        <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
-        <Link to="/pdfs" style={{ color: 'white' }}>PDFs</Link>
-      </nav>
-    </header>
+      <div className="mobile-header">
+        {siteName}
+      </div>
+
+      <div className="container">
+        <Routes>
+          <Route path="/" element={user ? <Home /> : <GoogleAuth onLogin={setUser} />} />
+          <Route path="/videos" element={<VideoList />} />
+          <Route path="/pdfs" element={<PDFList />} />
+          <Route path="/profile" element={<Profile onLogout={() => setUser(null)} />} />
+        </Routes>
+      </div>
+
+      <FooterMenu user={user} />
+    </Router>
   );
 }
 
@@ -86,12 +89,12 @@ function FooterMenu({ user }) {
         <FileTextIcon />
         <span>PDFs</span>
       </Link>
-      {user && (
+      {user ? (
         <Link to="/profile" className="footer-item" style={{ color: isActive('/profile') ? '#1e88e5' : '#555' }}>
           <UserIcon />
           <span>Profile</span>
         </Link>
-      )}
+      ) : null}
     </div>
   );
 }
