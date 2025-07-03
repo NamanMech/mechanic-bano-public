@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Spinner from '../components/Spinner';
 
 export default function Home() {
   const [welcomeNote, setWelcomeNote] = useState(null);
@@ -8,7 +9,7 @@ export default function Home() {
   const fetchWelcomeNote = async () => {
     try {
       const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/welcome');
-      if (response.data && response.data.title) { // ✅ FIXED
+      if (response.data && response.data.title) {
         setWelcomeNote(response.data);
       }
     } catch (error) {
@@ -23,7 +24,7 @@ export default function Home() {
   }, []);
 
   if (loading) {
-    return <div className="spinner"></div>;
+    return <Spinner />;
   }
 
   return (
