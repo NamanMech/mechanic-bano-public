@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
@@ -7,32 +8,23 @@ import axios from 'axios';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
-  const [logoUrl, setLogoUrl] = useState('');
   const [loading, setLoading] = useState(true);
 
-  const fetchSiteData = async () => {
+  const fetchSiteName = async () => {
     try {
-      const [siteNameResponse, logoResponse] = await Promise.all([
-        axios.get('https://mechanic-bano-backend.vercel.app/api/sitename'),
-        axios.get('https://mechanic-bano-backend.vercel.app/api/logo')
-      ]);
-
-      if (siteNameResponse.data && siteNameResponse.data.name) {
-        setSiteName(siteNameResponse.data.name);
-      }
-
-      if (logoResponse.data && logoResponse.data.url) {
-        setLogoUrl(logoResponse.data.url);
+      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/sitename');
+      if (response.data && response.data.name) {
+        setSiteName(response.data.name);
       }
     } catch (error) {
-      console.error('Error fetching site data');
+      console.error('Error fetching site name');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSiteData();
+    fetchSiteName();
   }, []);
 
   if (loading) {
@@ -41,15 +33,16 @@ export default function App() {
 
   return (
     <Router>
-      <header>
-        {logoUrl && <img src={logoUrl} alt="Site Logo" style={{ maxWidth: '120px', marginBottom: '10px' }} />}
+      <header style={{ display: 'flex', alignItems: 'center', backgroundColor: '#1e88e5', color: 'white', padding: '15px' }}>
+        <img src="/assets/logo.png" alt="Site Logo" style={{ height: '50px', marginRight: '15px', borderRadius: '10px' }} />
         <h1>{siteName}</h1>
-        <nav style={{ marginTop: '10px' }}>
+        <nav style={{ marginLeft: 'auto' }}>
           <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
           <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
           <Link to="/pdfs" style={{ color: 'white' }}>PDFs</Link>
         </nav>
       </header>
+
       <div className="container">
         <Routes>
           <Route path="/" element={<Home />} />
