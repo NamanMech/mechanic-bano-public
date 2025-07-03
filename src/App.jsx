@@ -1,10 +1,10 @@
-// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
 import axios from 'axios';
+import Spinner from './components/Spinner';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
@@ -28,21 +28,19 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return <div className="spinner"></div>;
+    return <Spinner />;
   }
 
   return (
     <Router>
-      <header style={{ display: 'flex', alignItems: 'center', backgroundColor: '#1e88e5', color: 'white', padding: '15px' }}>
-        <img src="/assets/logo.png" alt="Site Logo" style={{ height: '50px', marginRight: '15px', borderRadius: '10px' }} />
+      <header>
         <h1>{siteName}</h1>
-        <nav style={{ marginLeft: 'auto' }}>
+        <nav style={{ marginTop: '10px' }}>
           <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
           <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
           <Link to="/pdfs" style={{ color: 'white' }}>PDFs</Link>
         </nav>
       </header>
-
       <div className="container">
         <Routes>
           <Route path="/" element={<Home />} />
