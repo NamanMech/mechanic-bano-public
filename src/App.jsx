@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { HomeIcon, VideoIcon, FileTextIcon, UserIcon } from 'lucide-react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
-import axios from 'axios';
+import Profile from './pages/Profile';
 import GoogleAuth from './components/GoogleAuth';
+import axios from 'axios';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);
 
   const fetchSiteName = async () => {
     try {
@@ -34,44 +36,38 @@ export default function App() {
   }
 
   return (
-    <Router>
-      {/* Desktop Navbar */}
-      <header className="desktop-navbar">
-        <h1>{siteName}</h1>
-        <nav style={{ marginTop: '10px' }}>
-          <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
-          <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
-          <Link to="/pdfs" style={{ marginRight: '15px', color: 'white' }}>PDFs</Link>
-          {user && <Link to="/profile" style={{ color: 'white' }}>Profile</Link>}
-        </nav>
-      </header>
-
-      {/* Mobile Header */}
-      <div className="mobile-header">
-        {siteName}
-      </div>
-
-      <div className="container">
-        {user ? (
-          <>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/videos" element={<VideoList />} />
-              <Route path="/pdfs" element={<PDFList />} />
-              <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
-            </Routes>
-          </>
-        ) : (
-          <GoogleAuth onSuccess={setUser} />
-        )}
-      </div>
-
-      {user && <FooterMenu />}
-    </Router>
+    <GoogleOAuthProvider clientId="303726026304-0q7mt0gsqervgmkgp8tkck7nviluek1l.apps.googleusercontent.com">
+      <Router>
+        <Header siteName={siteName} />
+        <div className="container">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/videos" element={<VideoList />} />
+            <Route path="/pdfs" element={<PDFList />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </div>
+        <FooterMenu user={user} />
+        {!user && <GoogleAuth onLogin={setUser} />}
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
 
-function FooterMenu() {
+function Header({ siteName }) {
+  return (
+    <header className="desktop-navbar">
+      <h1>{siteName}</h1>
+      <nav style={{ marginTop: '10px' }}>
+        <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
+        <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
+        <Link to="/pdfs" style={{ color: 'white' }}>PDFs</Link>
+      </nav>
+    </header>
+  );
+}
+
+function FooterMenu({ user }) {
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
@@ -90,21 +86,12 @@ function FooterMenu() {
         <FileTextIcon />
         <span>PDFs</span>
       </Link>
-      <Link to="/profile" className="footer-item" style={{ color: isActive('/profile') ? '#1e88e5' : '#555' }}>
-        <UserIcon />
-        <span>Profile</span>
-      </Link>
-    </div>
-  );
-}
-
-function Profile({ user, setUser }) {
-  return (
-    <div>
-      <h2>Profile</h2>
-      <p>Name: {user.name}</p>
-      <p>Email: {user.email}</p>
-      <button onClick={() => window.location.reload()}>Logout</button>
+      {user && (
+        <Link to="/profile" className="footer-item" style={{ color: isActive('/profile') ? '#1e88e5' : '#555' }}>
+          <UserIcon />
+          <span>Profile</span>
+        </Link>
+      )}
     </div>
   );
 }
