@@ -104,3 +104,57 @@
     display: block;
   }
 }
+
+.footer-menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #1e88e5;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+}
+
+.footer-menu a {
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  flex: 1;
+}
+
+.footer-menu a.active {
+  color: yellow;
+}
+
+.footer-menu a span {
+  display: block;
+  font-size: 12px;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+body.dark-theme {
+  background-color: #121212;
+  color: white;
+}
+
+body.dark-theme .site-header {
+  background-color: #333;
+}
+
+body.dark-theme .footer-menu {
+  background-color: #333;
+}
+
+body.dark-theme .video-card {
+  background-color: #1e1e1e;
+  border-color: #555;
+}
