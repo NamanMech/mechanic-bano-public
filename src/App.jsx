@@ -7,32 +7,42 @@ import axios from 'axios';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
-  const [loading, setLoading] = useState(true); // Track loading status
+  const [logoUrl, setLogoUrl] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const fetchSiteName = async () => {
+  const fetchSiteData = async () => {
     try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/sitename');
-      if (response.data && response.data.name) {
-        setSiteName(response.data.name);
+      const [siteNameResponse, logoResponse] = await Promise.all([
+        axios.get('https://mechanic-bano-backend.vercel.app/api/sitename'),
+        axios.get('https://mechanic-bano-backend.vercel.app/api/logo')
+      ]);
+
+      if (siteNameResponse.data && siteNameResponse.data.name) {
+        setSiteName(siteNameResponse.data.name);
+      }
+
+      if (logoResponse.data && logoResponse.data.url) {
+        setLogoUrl(logoResponse.data.url);
       }
     } catch (error) {
-      console.error('Error fetching site name');
+      console.error('Error fetching site data');
     } finally {
-      setLoading(false); // API done
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSiteName();
+    fetchSiteData();
   }, []);
 
   if (loading) {
-    return <div className="spinner"></div>; // You can replace with your spinner UI
+    return <div className="spinner"></div>;
   }
 
   return (
     <Router>
       <header>
+        {logoUrl && <img src={logoUrl} alt="Site Logo" style={{ maxWidth: '120px', marginBottom: '10px' }} />}
         <h1>{siteName}</h1>
         <nav style={{ marginTop: '10px' }}>
           <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
