@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Spinner from '../components/Spinner';
 
 export default function VideoList() {
   const [videos, setVideos] = useState([]);
@@ -21,7 +22,7 @@ export default function VideoList() {
   }, []);
 
   if (loading) {
-    return <div className="spinner"></div>;
+    return <Spinner />;
   }
 
   return (
