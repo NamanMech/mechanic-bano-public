@@ -4,10 +4,11 @@ import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
 import axios from 'axios';
-import Navbar from './components/Navbar';
+import FooterMenu from './components/FooterMenu';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
+  const [isDark, setIsDark] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchSiteName = async () => {
@@ -27,13 +28,21 @@ export default function App() {
     fetchSiteName();
   }, []);
 
+  const toggleTheme = () => {
+    setIsDark(!isDark);
+    document.body.classList.toggle('dark-theme', !isDark);
+  };
+
   if (loading) {
     return <div className="spinner"></div>;
   }
 
   return (
     <Router>
-      <Navbar siteName={siteName} />
+      <header className="site-header">
+        <h1>{siteName}</h1>
+      </header>
+
       <div className="container">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -41,6 +50,8 @@ export default function App() {
           <Route path="/pdfs" element={<PDFList />} />
         </Routes>
       </div>
+
+      <FooterMenu isDark={isDark} toggleTheme={toggleTheme} />
     </Router>
   );
 }
