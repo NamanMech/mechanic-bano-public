@@ -11,7 +11,7 @@ export default function Profile() {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     } else {
-      navigate('/'); // If not logged in, redirect to home
+      navigate('/'); // Redirect if not logged in
     }
   }, [navigate]);
 
@@ -25,11 +25,12 @@ export default function Profile() {
   return (
     <div className="profile-container">
       <h2>User Profile</h2>
-      <p><strong>Name:</strong> {user.name}</p>
-      <p><strong>Email:</strong> {user.email}</p>
-      {user.picture && <img src={user.picture} alt="Profile" style={{ borderRadius: '50%', marginTop: '10px' }} />}
-      <br />
-      <button onClick={handleLogout}>Logout</button>
+      <div className="profile-card">
+        {user.picture && <img src={user.picture} alt="Profile" className="profile-pic" />}
+        <p><strong>Name:</strong> {user.name}</p>
+        <p><strong>Email:</strong> {user.email}</p>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      </div>
     </div>
   );
 }
