@@ -1,31 +1,36 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Video, FileText, Sun, Moon } from 'lucide-react';
+import { Home, Video, FileText, Menu } from 'lucide-react';
+import './FooterMenu.css';
 
-export default function FooterMenu({ isDark, toggleTheme }) {
+export default function FooterMenu({ pageStatus }) {
   const location = useLocation();
 
-  const menuItems = [
-    { path: '/', label: 'Home', icon: <Home size={24} /> },
-    { path: '/videos', label: 'Videos', icon: <Video size={24} /> },
-    { path: '/pdfs', label: 'PDFs', icon: <FileText size={24} /> },
-  ];
-
   return (
-    <div className="footer-menu">
-      {menuItems.map((item) => (
-        <Link
-          key={item.path}
-          to={item.path}
-          className={location.pathname === item.path ? 'active' : ''}
-        >
-          {item.icon}
-          <span>{item.label}</span>
+    <footer className="footer-menu">
+      <Link to="/" className={`footer-link ${location.pathname === '/' ? 'active' : ''}`}>
+        <Home size={24} />
+        <span>Home</span>
+      </Link>
+
+      {pageStatus.videos && (
+        <Link to="/videos" className={`footer-link ${location.pathname === '/videos' ? 'active' : ''}`}>
+          <Video size={24} />
+          <span>Videos</span>
         </Link>
-      ))}
-      <button onClick={toggleTheme} className="theme-toggle">
-        {isDark ? <Sun size={24} /> : <Moon size={24} />}
-      </button>
-    </div>
+      )}
+
+      {pageStatus.pdfs && (
+        <Link to="/pdfs" className={`footer-link ${location.pathname === '/pdfs' ? 'active' : ''}`}>
+          <FileText size={24} />
+          <span>PDFs</span>
+        </Link>
+      )}
+
+      <Link to="#" className="footer-link">
+        <Menu size={24} />
+        <span>More</span>
+      </Link>
+    </footer>
   );
 }
