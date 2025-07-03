@@ -8,6 +8,7 @@ import axios from 'axios';
 export default function App() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [fade, setFade] = useState(false);
 
   const fetchSiteName = async () => {
     try {
@@ -17,17 +18,20 @@ export default function App() {
       }
     } catch (error) {
       console.error('Error fetching site name');
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSiteName();
+    const loadSite = async () => {
+      await fetchSiteName();
+      setFade(true); // Start fade-out animation
+      setTimeout(() => setLoading(false), 500); // Remove spinner after animation
+    };
+    loadSite();
   }, []);
 
   if (loading) {
-    return <div className="spinner"></div>;
+    return <div className={`spinner ${fade ? 'fade-out' : ''}`}></div>;
   }
 
   return (
