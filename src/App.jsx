@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
-import axios from 'axios';
 import FooterMenu from './components/FooterMenu';
-import Navbar from './components/Navbar';
+import axios from 'axios';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
-  const [isDark, setIsDark] = useState(false);
+  const [pageStatus, setPageStatus] = useState({});
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const fetchSiteName = async () => {
     try {
@@ -21,6 +19,19 @@ export default function App() {
       }
     } catch (error) {
       console.error('Error fetching site name');
+    }
+  };
+
+  const fetchPageControl = async () => {
+    try {
+      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/pagecontrol');
+      const statusMap = {};
+      response.data.forEach(item => {
+        statusMap[item.page] = item.enabled;
+      });
+      setPageStatus(statusMap);
+    } catch (error) {
+      console.error('Error fetching page control');
     } finally {
       setLoading(false);
     }
@@ -28,19 +39,8 @@ export default function App() {
 
   useEffect(() => {
     fetchSiteName();
-
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    fetchPageControl();
   }, []);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.body.classList.toggle('dark-theme', !isDark);
-  };
 
   if (loading) {
     return <div className="spinner"></div>;
@@ -48,15 +48,27 @@ export default function App() {
 
   return (
     <Router>
-      {!isMobile && <Navbar />}
-      <div className="container" style={{ paddingBottom: isMobile ? '60px' : '0' }}>
+      {/* Desktop Navbar */}
+      <header className="desktop-navbar">
+        <h1>{siteName}</h1>
+        <nav style={{ marginTop: '10px' }}>
+          <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
+          {pageStatus.videos && <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>}
+          {pageStatus.pdfs && <Link to="/pdfs" style={{ color: 'white' }}>PDFs</Link>}
+        </nav>
+      </header>
+
+      {/* Page Content */}
+      <div className="container">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/videos" element={<VideoList />} />
-          <Route path="/pdfs" element={<PDFList />} />
+          {pageStatus.videos && <Route path="/videos" element={<VideoList />} />}
+          {pageStatus.pdfs && <Route path="/pdfs" element={<PDFList />} />}
         </Routes>
       </div>
-      {isMobile && <FooterMenu isDark={isDark} toggleTheme={toggleTheme} />}
+
+      {/* Mobile Footer Menu */}
+      <FooterMenu pageStatus={pageStatus} />
     </Router>
   );
 }
