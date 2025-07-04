@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import GoogleAuth from './components/GoogleAuth';
 import FooterMenu from './components/FooterMenu';
 import Navbar from './components/Navbar';
+import Spinner from './components/Spinner';
 import axios from 'axios';
 import { useAuth } from './context/AuthContext';
 
@@ -33,7 +34,7 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return <div className="spinner"></div>;
+    return <Spinner />;
   }
 
   return (
