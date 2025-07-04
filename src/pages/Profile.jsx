@@ -1,5 +1,4 @@
-// src/pages/Profile.jsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,11 +6,10 @@ export default function Profile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/'); // Redirect to home if user is not logged in
-    }
-  }, [user, navigate]);
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   if (!user) return null;
 
@@ -22,7 +20,7 @@ export default function Profile() {
         {user.picture && <img src={user.picture} alt="Profile" className="profile-pic" />}
         <p><strong>Name:</strong> {user.name}</p>
         <p><strong>Email:</strong> {user.email}</p>
-        <button className="logout-btn" onClick={logout}>Logout</button>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>
     </div>
   );
