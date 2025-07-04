@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { HomeIcon, VideoIcon, FileTextIcon, UserIcon } from 'lucide-react';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
@@ -7,11 +7,12 @@ import PDFList from './pages/pdf';
 import Profile from './pages/Profile';
 import GoogleAuth from './components/GoogleAuth';
 import axios from 'axios';
+import { useAuth } from './context/AuthContext';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
 
   const fetchSiteName = async () => {
     try {
@@ -28,10 +29,6 @@ export default function App() {
 
   useEffect(() => {
     fetchSiteName();
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
   }, []);
 
   if (loading) {
@@ -40,6 +37,7 @@ export default function App() {
 
   return (
     <Router>
+      {/* Desktop Navbar */}
       <header className="desktop-navbar">
         <h1>{siteName}</h1>
         <nav style={{ marginTop: '10px' }}>
@@ -52,26 +50,28 @@ export default function App() {
         </nav>
       </header>
 
+      {/* Mobile Header */}
       <div className="mobile-header">
         {siteName}
       </div>
 
       <div className="container">
         <Routes>
-          <Route path="/" element={user ? <Home /> : <GoogleAuth onLogin={setUser} />} />
+          <Route path="/" element={user ? <Home /> : <GoogleAuth />} />
           <Route path="/videos" element={<VideoList />} />
           <Route path="/pdfs" element={<PDFList />} />
-          <Route path="/profile" element={<Profile onLogout={() => setUser(null)} />} />
+          <Route path="/profile" element={user ? <Profile /> : <GoogleAuth />} />
         </Routes>
       </div>
 
-      <FooterMenu user={user} />
+      <FooterMenu />
     </Router>
   );
 }
 
-function FooterMenu({ user }) {
+function FooterMenu() {
   const location = useLocation();
+  const { user } = useAuth();
 
   const isActive = (path) => location.pathname === path;
 
