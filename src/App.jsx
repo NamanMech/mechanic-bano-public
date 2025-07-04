@@ -1,59 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { HomeIcon, VideoIcon, FileTextIcon, UserIcon } from 'lucide-react';
+import { useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
 import PDFList from './pages/pdf';
 import Profile from './pages/Profile';
 import GoogleAuth from './components/GoogleAuth';
-import axios from 'axios';
-import { useAuth } from './context/AuthContext';
 
 export default function App() {
-  const [siteName, setSiteName] = useState('');
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
-
-  const fetchSiteName = async () => {
-    try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/sitename');
-      if (response.data && response.data.name) {
-        setSiteName(response.data.name);
-      }
-    } catch (error) {
-      console.error('Error fetching site name');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSiteName();
-  }, []);
-
-  if (loading) {
-    return <div className="spinner"></div>;
-  }
+  const { user, logout } = useAuth();
 
   return (
     <Router>
       {/* Desktop Navbar */}
       <header className="desktop-navbar">
-        <h1>{siteName}</h1>
+        <h1>Mechanic Bano</h1>
         <nav style={{ marginTop: '10px' }}>
           <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
           <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
           <Link to="/pdfs" style={{ marginRight: '15px', color: 'white' }}>PDFs</Link>
-          {user ? (
+          {user && (
             <Link to="/profile" style={{ color: 'white' }}>Profile</Link>
-          ) : null}
+          )}
         </nav>
       </header>
 
       {/* Mobile Header */}
-      <div className="mobile-header">
-        {siteName}
-      </div>
+      <div className="mobile-header">Mechanic Bano</div>
 
       <div className="container">
         <Routes>
@@ -64,15 +38,14 @@ export default function App() {
         </Routes>
       </div>
 
-      <FooterMenu />
+      {/* Footer Menu */}
+      <FooterMenu user={user} logout={logout} />
     </Router>
   );
 }
 
-function FooterMenu() {
+function FooterMenu({ user }) {
   const location = useLocation();
-  const { user } = useAuth();
-
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -94,7 +67,12 @@ function FooterMenu() {
           <UserIcon />
           <span>Profile</span>
         </Link>
-      ) : null}
+      ) : (
+        <Link to="/" className="footer-item" style={{ color: '#555' }}>
+          <UserIcon />
+          <span>Login</span>
+        </Link>
+      )}
     </div>
   );
 }
