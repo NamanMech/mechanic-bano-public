@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import Spinner from './components/Spinner';
 import axios from 'axios';
 import { useAuth } from './context/AuthContext';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/videos" element={<VideoList />} />
           <Route path="/pdfs" element={<PDFList />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
 
