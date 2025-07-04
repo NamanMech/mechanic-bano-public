@@ -1,3 +1,4 @@
+// src/pages/pdf.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
@@ -5,13 +6,14 @@ import Spinner from '../components/Spinner';
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchPdfs = async () => {
     try {
       const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/pdf');
       setPdfs(response.data);
     } catch (error) {
-      alert('Error fetching PDFs');
+      setError('Error fetching PDFs.');
     } finally {
       setLoading(false);
     }
@@ -21,15 +23,14 @@ export default function PDFList() {
     fetchPdfs();
   }, []);
 
-  if (loading) {
-    return <Spinner />;
-  }
+  if (loading) return <Spinner />;
+  if (error) return <div style={{ color: 'red', textAlign: 'center', marginTop: '20px' }}>{error}</div>;
 
   return (
     <div>
       <h2>All PDFs</h2>
       {pdfs.length === 0 ? (
-        <p>No PDFs available</p>
+        <p style={{ textAlign: 'center' }}>No PDFs available</p>
       ) : (
         <div className="video-grid">
           {pdfs.map((pdf) => (
@@ -38,6 +39,8 @@ export default function PDFList() {
               <iframe
                 src={pdf.embedLink}
                 title={pdf.title}
+                width="100%"
+                height="300"
                 frameBorder="0"
                 allow="autoplay"
               ></iframe>
