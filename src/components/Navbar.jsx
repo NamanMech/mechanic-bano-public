@@ -15,7 +15,7 @@ export default function Navbar({ siteName }) {
         {user ? (
           <Link to="/profile" style={{ color: 'white' }}>Profile</Link>
         ) : (
-          <Link to="/" style={{ color: 'white' }}>Login</Link>
+          <Link to="/login" style={{ color: 'white' }}>Login</Link>
         )}
       </nav>
     </header>
