@@ -159,3 +159,10 @@ p {
 .logout-btn:hover {
   background-color: #e53935;
 }
+
+/* ✅ Hide Desktop Navbar on Mobile */
+@media (max-width: 767px) {
+  .desktop-navbar {
+    display: none;
+  }
+}
