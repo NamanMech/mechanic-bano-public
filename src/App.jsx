@@ -8,14 +8,15 @@ import GoogleAuth from './components/GoogleAuth';
 import FooterMenu from './components/FooterMenu';
 import Navbar from './components/Navbar';
 import Spinner from './components/Spinner';
+import NotFound from './pages/NotFound'; // 404 Page
 import axios from 'axios';
 import { useAuth } from './context/AuthContext';
-import NotFound from './pages/NotFound';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const fetchSiteName = async () => {
     try {
@@ -32,19 +33,22 @@ export default function App() {
 
   useEffect(() => {
     fetchSiteName();
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  if (loading) {
-    return <Spinner />;
-  }
+  if (loading) return <Spinner />;
 
   return (
     <Router>
       <Navbar siteName={siteName} />
 
-      <div className="mobile-header">
-        {siteName}
-      </div>
+      {isMobile && (
+        <div className="mobile-header">
+          {siteName}
+        </div>
+      )}
 
       <div className="container">
         <Routes>
