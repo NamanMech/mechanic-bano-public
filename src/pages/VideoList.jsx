@@ -1,3 +1,4 @@
+// src/pages/VideoList.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
@@ -5,13 +6,14 @@ import Spinner from '../components/Spinner';
 export default function VideoList() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchVideos = async () => {
     try {
       const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/youtube');
       setVideos(response.data);
     } catch (error) {
-      alert('Error fetching videos');
+      setError('Error fetching videos.');
     } finally {
       setLoading(false);
     }
@@ -21,14 +23,13 @@ export default function VideoList() {
     fetchVideos();
   }, []);
 
-  if (loading) {
-    return <Spinner />;
-  }
+  if (loading) return <Spinner />;
+  if (error) return <div style={{ color: 'red', textAlign: 'center', marginTop: '20px' }}>{error}</div>;
 
   return (
     <div>
       {videos.length === 0 ? (
-        <p>No videos available</p>
+        <p style={{ textAlign: 'center' }}>No videos available</p>
       ) : (
         <div className="video-grid">
           {videos.map((video) => (
