@@ -1,41 +1,42 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Video, FileText, User, LogIn } from 'lucide-react';
-import './FooterMenu.css';
-import { useAuth } from '../context/AuthContext';
+.footer-menu {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #1e88e5;
+  padding: 10px 0;
+  border-top: 1px solid #ccc;
+  z-index: 1000;
+}
 
-export default function FooterMenu() {
-  const location = useLocation();
-  const { user } = useAuth();
+.footer-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  color: white;
+  text-decoration: none;
+  transition: transform 0.2s, color 0.3s;
+}
 
-  return (
-    <footer className="footer-menu">
-      <Link to="/" className={`footer-link ${location.pathname === '/' ? 'active' : ''}`}>
-        <Home size={24} />
-        <span>Home</span>
-      </Link>
+.footer-link:hover {
+  transform: scale(1.1);
+  color: #ffeb3b;
+}
 
-      <Link to="/videos" className={`footer-link ${location.pathname === '/videos' ? 'active' : ''}`}>
-        <Video size={24} />
-        <span>Videos</span>
-      </Link>
+.footer-link span {
+  margin-top: 4px;
+}
 
-      <Link to="/pdfs" className={`footer-link ${location.pathname === '/pdfs' ? 'active' : ''}`}>
-        <FileText size={24} />
-        <span>PDFs</span>
-      </Link>
+.footer-link.active {
+  color: #ffeb3b;
+}
 
-      {user ? (
-        <Link to="/profile" className={`footer-link ${location.pathname === '/profile' ? 'active' : ''}`}>
-          <User size={24} />
-          <span>Profile</span>
-        </Link>
-      ) : (
-        <Link to="/" className="footer-link">
-          <LogIn size={24} />
-          <span>Login</span>
-        </Link>
-      )}
-    </footer>
-  );
+@media (min-width: 768px) {
+  .footer-menu {
+    display: none; /* Hide footer menu on desktop */
+  }
 }
