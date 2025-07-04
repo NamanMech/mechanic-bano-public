@@ -6,14 +6,6 @@ body {
   background-color: #f9f9f9;
 }
 
-header {
-  background-color: #1e88e5;
-  color: white;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
 .container {
   padding: 20px;
   max-width: 1200px;
@@ -23,6 +15,24 @@ header {
 h1, h2 {
   margin: 0;
   padding-bottom: 10px;
+}
+
+/* Desktop Navbar Styling */
+.desktop-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: #1e88e5;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Hide Desktop Navbar on Mobile */
+@media (max-width: 767px) {
+  .desktop-navbar {
+    display: none !important;
+  }
 }
 
 /* Video Grid */
@@ -158,11 +168,4 @@ p {
 
 .logout-btn:hover {
   background-color: #e53935;
-}
-
-/* ✅ Hide Desktop Navbar on Mobile */
-@media (max-width: 767px) {
-  .desktop-navbar {
-    display: none;
-  }
 }
