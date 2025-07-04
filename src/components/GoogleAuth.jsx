@@ -1,41 +1,27 @@
-import React, { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
-import jwt_decode from 'jwt-decode';
-import { useAuth } from '../context/AuthContext';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-export default function GoogleAuth() {
-  const { login } = useAuth();
-  const [rememberMe, setRememberMe] = useState(false);
+export default function Profile() {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleSuccess = (credentialResponse) => {
-    try {
-      const decoded = jwt_decode(credentialResponse.credential);
-      if (decoded) {
-        login(decoded, rememberMe);
-        navigate('/'); // Navigate to Home after login
-      }
-    } catch (error) {
-      alert('Error decoding token. Please try again.');
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
-  const handleError = () => {
-    alert('Google Login Failed. Please try again.');
-  };
+  if (!user) return null;
 
   return (
-    <div className="login-container">
-      <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
-      <label className="remember-me">
-        <input
-          type="checkbox"
-          checked={rememberMe}
-          onChange={() => setRememberMe(!rememberMe)}
-        />
-        Remember Me
-      </label>
+    <div className="profile-container">
+      <h2>User Profile</h2>
+      <div className="profile-card">
+        {user.picture && <img src={user.picture} alt="Profile" className="profile-pic" />}
+        <p><strong>Name:</strong> {user.name}</p>
+        <p><strong>Email:</strong> {user.email}</p>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      </div>
     </div>
   );
 }
