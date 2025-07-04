@@ -6,8 +6,12 @@ export default function Navbar({ siteName }) {
   const { user } = useAuth();
 
   return (
-    <header className="desktop-navbar">
-      <h1>{siteName}</h1>
+    <header className="desktop-navbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <img src="/assets/logo.png" alt="Logo" style={{ width: '40px', height: '40px', marginRight: '10px', borderRadius: '50%' }} />
+        <h1>{siteName}</h1>
+      </div>
+
       <nav style={{ marginTop: '10px' }}>
         <Link to="/" style={{ marginRight: '15px', color: 'white' }}>Home</Link>
         <Link to="/videos" style={{ marginRight: '15px', color: 'white' }}>Videos</Link>
