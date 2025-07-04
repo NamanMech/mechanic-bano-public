@@ -1,18 +1,20 @@
-// src/components/GoogleAuth.jsx
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import jwt_decode from 'jwt-decode';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function GoogleAuth() {
   const { login } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate();
 
   const handleSuccess = (credentialResponse) => {
     try {
       const decoded = jwt_decode(credentialResponse.credential);
       if (decoded) {
         login(decoded, rememberMe);
+        navigate('/'); // Navigate to Home after login
       }
     } catch (error) {
       alert('Error decoding token. Please try again.');
@@ -25,18 +27,15 @@ export default function GoogleAuth() {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h2>Welcome Back</h2>
-        <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
-        <label className="remember-me">
-          <input
-            type="checkbox"
-            checked={rememberMe}
-            onChange={() => setRememberMe(!rememberMe)}
-          />
-          Remember Me
-        </label>
-      </div>
+      <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+      <label className="remember-me">
+        <input
+          type="checkbox"
+          checked={rememberMe}
+          onChange={() => setRememberMe(!rememberMe)}
+        />
+        Remember Me
+      </label>
     </div>
   );
 }
