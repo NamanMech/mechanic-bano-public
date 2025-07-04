@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
@@ -8,7 +8,7 @@ import GoogleAuth from './components/GoogleAuth';
 import FooterMenu from './components/FooterMenu';
 import Navbar from './components/Navbar';
 import Spinner from './components/Spinner';
-import NotFound from './pages/NotFound'; // 404 Page
+import NotFound from './pages/NotFound';
 import axios from 'axios';
 import { useAuth } from './context/AuthContext';
 
@@ -33,21 +33,10 @@ export default function App() {
 
   useEffect(() => {
     fetchSiteName();
-  }, []);
-
-  // ✅ More accurate resize handler using useLayoutEffect
-  useLayoutEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768 && !isMobile) {
-        setIsMobile(true);
-      } else if (window.innerWidth >= 768 && isMobile) {
-        setIsMobile(false);
-      }
-    };
-
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isMobile]);
+  }, []);
 
   if (loading) return <Spinner />;
 
@@ -57,7 +46,8 @@ export default function App() {
 
       {isMobile && (
         <div className="mobile-header">
-          {siteName}
+          <img src="/assets/logo.png" alt="Logo" className="mobile-logo" />
+          <span>{siteName}</span>
         </div>
       )}
 
