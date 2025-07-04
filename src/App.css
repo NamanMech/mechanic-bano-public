@@ -25,6 +25,45 @@ h1, h2 {
   padding-bottom: 10px;
 }
 
+/* Video Grid */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.video-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.video-card:hover {
+  transform: translateY(-5px);
+}
+
+iframe {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+}
+
+p {
+  margin: 10px 0;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #1e88e5;
+  color: white;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
 /* Spinner Animation */
 .spinner {
   width: 60px;
@@ -40,63 +79,8 @@ h1, h2 {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Mobile Footer Menu */
-.footer-menu {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #1e88e5;
-  padding: 10px 0;
-  border-top: 1px solid #ccc;
-  z-index: 1000;
-}
-
-.footer-link {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 12px;
-  color: white;
-  text-decoration: none;
-  transition: transform 0.2s, color 0.3s;
-}
-
-.footer-link:hover {
-  transform: scale(1.1);
-  color: #ffeb3b;
-}
-
-.footer-link span {
-  margin-top: 4px;
-}
-
-.footer-link.active {
-  color: #ffeb3b;
-}
-
-@media (min-width: 768px) {
-  .footer-menu {
-    display: none; /* Hide footer menu on desktop */
-  }
-}
-
-/* Hide Desktop Navbar on Mobile */
-@media (max-width: 767px) {
-  .desktop-navbar {
-    display: none;
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Mobile Header */
@@ -113,9 +97,12 @@ h1, h2 {
 }
 
 @media (min-width: 768px) {
-  .mobile-header {
-    display: none;
-  }
+  .mobile-header { display: none; }
+}
+
+/* Footer Menu - Keep only mobile */
+@media (min-width: 768px) {
+  .footer-menu { display: none; }
 }
 
 /* Login Container */
@@ -127,41 +114,48 @@ h1, h2 {
 }
 
 .remember-me {
-  margin-top: 15px;
+  margin-top: 10px;
   font-size: 14px;
 }
 
+.remember-me input {
+  margin-right: 5px;
+}
+
+/* Profile Page */
 .profile-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
 }
 
 .profile-card {
-  padding: 20px;
   border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .profile-pic {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
+  margin-bottom: 15px;
 }
 
 .logout-btn {
-  margin-top: 15px;
-  padding: 8px 16px;
-  background-color: #e53935;
+  background-color: #ff3d00;
   color: white;
   border: none;
-  border-radius: 5px;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
+  margin-top: 10px;
 }
 
 .logout-btn:hover {
-  background-color: #d32f2f;
+  background-color: #e53935;
 }
