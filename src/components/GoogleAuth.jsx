@@ -25,15 +25,18 @@ export default function GoogleAuth() {
 
   return (
     <div className="login-container">
-      <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
-      <label className="remember-me">
-        <input
-          type="checkbox"
-          checked={rememberMe}
-          onChange={() => setRememberMe(!rememberMe)}
-        />
-        Remember Me
-      </label>
+      <div className="login-card">
+        <h2>Welcome Back</h2>
+        <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+        <label className="remember-me">
+          <input
+            type="checkbox"
+            checked={rememberMe}
+            onChange={() => setRememberMe(!rememberMe)}
+          />
+          Remember Me
+        </label>
+      </div>
     </div>
   );
 }
