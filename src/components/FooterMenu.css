@@ -22,22 +22,21 @@
   transition: transform 0.2s, color 0.3s;
 }
 
+.footer-link:hover {
+  transform: scale(1.1);
+  color: #ffeb3b;
+}
+
 .footer-link span {
   margin-top: 4px;
+}
+
+.footer-link.active {
+  color: #ffeb3b;
 }
 
 @media (min-width: 768px) {
   .footer-menu {
     display: none; /* Hide footer menu on desktop */
   }
-}
-
-.footer-link:hover {
-  transform: scale(1.1);
-  color: #ffeb3b;
-}
-
-.footer-link.active {
-  color: #ffeb3b;
-  font-weight: bold;
 }
