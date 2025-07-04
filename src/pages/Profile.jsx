@@ -1,25 +1,18 @@
 // src/pages/Profile.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      navigate('/'); // Redirect if not logged in
+    if (!user) {
+      navigate('/'); // Redirect to home if user is not logged in
     }
-  }, [navigate]);
+  }, [user, navigate]);
 
-  const handleLogout = () => {
-  localStorage.removeItem('user');
-  navigate('/');
-  window.location.reload(); // Force refresh to reset state in App
-};
   if (!user) return null;
 
   return (
@@ -29,7 +22,7 @@ export default function Profile() {
         {user.picture && <img src={user.picture} alt="Profile" className="profile-pic" />}
         <p><strong>Name:</strong> {user.name}</p>
         <p><strong>Email:</strong> {user.email}</p>
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        <button className="logout-btn" onClick={logout}>Logout</button>
       </div>
     </div>
   );
