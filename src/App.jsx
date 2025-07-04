@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useLayoutEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import VideoList from './pages/VideoList';
@@ -33,10 +33,21 @@ export default function App() {
 
   useEffect(() => {
     fetchSiteName();
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  // ✅ More accurate resize handler using useLayoutEffect
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768 && !isMobile) {
+        setIsMobile(true);
+      } else if (window.innerWidth >= 768 && isMobile) {
+        setIsMobile(false);
+      }
+    };
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isMobile]);
 
   if (loading) return <Spinner />;
 
