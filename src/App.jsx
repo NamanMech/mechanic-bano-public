@@ -21,10 +21,10 @@ export default function App() {
 
   const fetchSiteName = async () => {
     try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/sitename');
-      if (response.data && response.data.name) {
-        setSiteName(response.data.name);
-      }
+      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/general?type=sitename');
+if (response.data && response.data.name) {
+  setSiteName(response.data.name);
+}
     } catch (error) {
       console.error('Error fetching site name');
     } finally {
