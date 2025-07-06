@@ -1,3 +1,4 @@
+// src/pages/Profile.jsx
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -64,30 +65,33 @@ export default function Profile() {
         {isSubscribed ? (
           <p style={{ color: 'green', marginTop: '10px' }}>Subscription Status: Active 🎉</p>
         ) : (
-          <>
-            <p style={{ color: 'red', marginTop: '10px' }}>Subscription Status: Inactive ❌</p>
-            <h3 style={{ marginTop: '30px' }}>Available Subscription Plans</h3>
-            {plans.length === 0 ? (
-              <p>No plans available.</p>
-            ) : (
-              plans.map((plan) => (
-                <div key={plan._id} style={{ border: '1px solid gray', padding: '10px', marginTop: '10px', borderRadius: '8px' }}>
-                  <h4>{plan.title}</h4>
-                  <p>Price: ₹{plan.price}</p>
-                  <p>Validity: {plan.days} days</p>
-                  <p>Discount: {plan.discount || 0}%</p>
-                  <button
-                    onClick={() => handleSubscribe(plan.days)}
-                    disabled={activating}
-                    className="logout-btn"
-                    style={{ backgroundColor: '#1e88e5', marginTop: '10px' }}
-                  >
-                    {activating ? 'Activating...' : 'Subscribe'}
-                  </button>
-                </div>
-              ))
-            )}
-          </>
+          <p style={{ color: 'red', marginTop: '10px' }}>Subscription Status: Inactive ❌</p>
+        )}
+
+        <h3 style={{ marginTop: '30px' }}>Available Subscription Plans</h3>
+        {plans.length === 0 ? (
+          <p>No plans available.</p>
+        ) : (
+          plans.map((plan) => (
+            <div key={plan._id} style={{ border: '1px solid gray', padding: '10px', marginTop: '10px', borderRadius: '8px' }}>
+              <h4>{plan.title}</h4>
+              <p>Price: ₹{plan.price}</p>
+              <p>Validity: {plan.days} days</p>
+              <p>Discount: {plan.discount || 0}%</p>
+              {isSubscribed ? (
+                <p style={{ color: 'green' }}>You are already subscribed</p>
+              ) : (
+                <button
+                  onClick={() => handleSubscribe(plan.days)}
+                  disabled={activating}
+                  className="logout-btn"
+                  style={{ backgroundColor: '#1e88e5', marginTop: '10px' }}
+                >
+                  {activating ? 'Activating...' : 'Subscribe'}
+                </button>
+              )}
+            </div>
+          ))
         )}
 
         <button onClick={handleLogout} className="logout-btn" style={{ marginTop: '20px' }}>
