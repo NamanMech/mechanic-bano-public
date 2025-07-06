@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -9,11 +8,11 @@ import useSubscription from '../hooks/useSubscription';
 export default function Profile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { isSubscribed, loading: subscriptionLoading, subscriptionEnd } = useSubscription(user?.email);
+  const { isSubscribed, loading: subscriptionLoading, subscriptionEnd, subscriptionDays } = useSubscription(user?.email);
   const [plans, setPlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [activating, setActivating] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile'); // profile | plans
+  const [activeTab, setActiveTab] = useState('profile');
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -54,16 +53,22 @@ export default function Profile() {
 
   if (subscriptionLoading || loadingPlans) return <Spinner />;
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="profile-container">
       <div className="profile-card">
+
         {/* Tabs */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
           <button onClick={() => setActiveTab('profile')} style={activeTab === 'profile' ? activeTabStyle : tabStyle}>Profile</button>
           <button onClick={() => setActiveTab('plans')} style={activeTab === 'plans' ? activeTabStyle : tabStyle}>Subscription Plans</button>
         </div>
 
-        {/* Tab 1: Profile */}
+        {/* Profile Tab */}
         {activeTab === 'profile' && (
           <>
             <img src={user.picture} alt={user.name} className="profile-pic" />
@@ -71,7 +76,12 @@ export default function Profile() {
             <p>{user.email}</p>
 
             {isSubscribed ? (
-              <p style={{ color: 'green', marginTop: '10px' }}>Subscription Status: Active 🎉</p>
+              <>
+                <p style={{ color: 'green', marginTop: '10px' }}>Subscription Status: Active 🎉</p>
+                {subscriptionEnd && (
+                  <p>Valid Till: {formatDate(subscriptionEnd)}</p>
+                )}
+              </>
             ) : (
               <p style={{ color: 'red', marginTop: '10px' }}>Subscription Status: Inactive ❌</p>
             )}
@@ -82,33 +92,41 @@ export default function Profile() {
           </>
         )}
 
-        {/* Tab 2: Subscription Plans */}
+        {/* Plans Tab */}
         {activeTab === 'plans' && (
           <>
             <h3>Available Subscription Plans</h3>
             {plans.length === 0 ? (
               <p>No plans available.</p>
             ) : (
-              plans.map((plan) => (
-                <div key={plan._id} style={{ border: '1px solid gray', padding: '10px', marginTop: '10px', borderRadius: '8px' }}>
-                  <h4>{plan.title}</h4>
-                  <p>Price: ₹{plan.price}</p>
-                  <p>Validity: {plan.days} days</p>
-                  <p>Discount: {plan.discount || 0}%</p>
-                  <button
-                    onClick={() => handleSubscribe(plan.days)}
-                    disabled={activating}
-                    className="logout-btn"
-                    style={{
-                      backgroundColor: '#1e88e5',
-                      marginTop: '10px',
-                      cursor: isSubscribed ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    {activating ? 'Activating...' : 'Subscribe / Upgrade'}
-                  </button>
-                </div>
-              ))
+              plans.map((plan) => {
+                const isCurrentPlan = subscriptionDays === parseInt(plan.days);
+                const isLowerPlan = subscriptionDays > parseInt(plan.days);
+
+                return (
+                  <div key={plan._id} style={{ border: '1px solid gray', padding: '10px', marginTop: '10px', borderRadius: '8px' }}>
+                    <h4>{plan.title}</h4>
+                    <p>Price: ₹{plan.price}</p>
+                    <p>Validity: {plan.days} days</p>
+                    <p>Discount: {plan.discount || 0}%</p>
+
+                    {isCurrentPlan && <p style={{ color: 'green' }}>Your Current Plan ✅</p>}
+
+                    <button
+                      onClick={() => handleSubscribe(plan.days)}
+                      disabled={isCurrentPlan || isLowerPlan || activating}
+                      className="logout-btn"
+                      style={{
+                        backgroundColor: isCurrentPlan || isLowerPlan ? 'gray' : '#1e88e5',
+                        marginTop: '10px',
+                        cursor: isCurrentPlan || isLowerPlan ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {isCurrentPlan ? 'Current Plan' : isLowerPlan ? 'Lower Plan' : activating ? 'Activating...' : 'Subscribe / Upgrade'}
+                    </button>
+                  </div>
+                );
+              })
             )}
 
             <button onClick={() => setActiveTab('profile')} className="logout-btn" style={{ marginTop: '20px' }}>
@@ -116,6 +134,7 @@ export default function Profile() {
             </button>
           </>
         )}
+
       </div>
     </div>
   );
