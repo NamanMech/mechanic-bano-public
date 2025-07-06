@@ -1,4 +1,3 @@
-// src/pages/pdf.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
@@ -10,7 +9,8 @@ export default function PDFList() {
 
   const fetchPdfs = async () => {
     try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/pdf');
+      // ✅ Corrected API for fetching PDFs
+      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/general?type=pdf');
       setPdfs(response.data);
     } catch (error) {
       setError('Error fetching PDFs.');
