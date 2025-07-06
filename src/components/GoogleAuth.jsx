@@ -1,5 +1,7 @@
+// src/components/GoogleAuth.jsx
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import jwt_decode from 'jwt-decode';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
@@ -14,16 +16,25 @@ export default function GoogleAuth() {
         return;
       }
 
-      // ✅ Send token to backend
-      const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', {
-        token: credentialResponse.credential,
+      const decoded = jwt_decode(credentialResponse.credential);
+
+      if (!decoded?.email) {
+        alert('Login failed: Invalid token data.');
+        return;
+      }
+
+      // ✅ Send to backend at /api/users
+      const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/users', {
+        email: decoded.email,
+        name: decoded.name,
+        picture: decoded.picture,
       });
 
-      // ✅ Save user to Auth Context
       login(response.data, rememberMe);
+
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+      alert('Error during login. Please try again.');
     }
   };
 
