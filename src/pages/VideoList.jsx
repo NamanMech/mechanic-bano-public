@@ -13,7 +13,8 @@ export default function VideoList() {
 
   const fetchVideos = async () => {
     try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/youtube');
+      // ✅ Correct API for public videos
+      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/general?type=youtube');
       setVideos(response.data);
     } catch (error) {
       setError('Error fetching videos.');
