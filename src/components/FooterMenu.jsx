@@ -1,17 +1,31 @@
-import React, { useState } from 'react';
+// src/components/FooterMenu.jsx
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Video, FileText, Menu } from 'lucide-react';
+import { Home, Video, FileText, LogIn, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './FooterMenu.css';
 
 export default function FooterMenu() {
   const location = useLocation();
   const { user } = useAuth();
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
-  const toggleMoreMenu = () => {
-    setShowMoreMenu(!showMoreMenu);
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
+
+  // Outside click handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <footer className="footer-menu">
@@ -30,24 +44,33 @@ export default function FooterMenu() {
         <span>PDFs</span>
       </Link>
 
-      {user && (
-        <div className="footer-link" onClick={toggleMoreMenu} style={{ cursor: 'pointer' }}>
-          <Menu size={24} />
+      {/* More Button */}
+      <div className="footer-link more-menu-wrapper" ref={menuRef}>
+        <button onClick={toggleMenu} className="more-button">
+          <MoreHorizontal size={24} />
           <span>More</span>
-        </div>
-      )}
+        </button>
 
-      {showMoreMenu && (
-        <div className="more-menu">
-          <Link to="/profile" onClick={() => setShowMoreMenu(false)}>
-            Profile
-          </Link>
-          <Link to="/subscription" onClick={() => setShowMoreMenu(false)}>
-            Subscription
-          </Link>
-          {/* Add more options here */}
-        </div>
-      )}
+        {/* Dropdown Menu */}
+        {menuOpen && (
+          <div className="more-dropdown">
+            {user ? (
+              <>
+                <Link to="/profile" className="dropdown-link" onClick={() => setMenuOpen(false)}>
+                  Profile
+                </Link>
+                <Link to="/subscription" className="dropdown-link" onClick={() => setMenuOpen(false)}>
+                  Subscription
+                </Link>
+              </>
+            ) : (
+              <Link to="/" className="dropdown-link" onClick={() => setMenuOpen(false)}>
+                Login
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
     </footer>
   );
 }
