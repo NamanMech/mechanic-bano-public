@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Video, FileText, User, LogIn } from 'lucide-react';
+import { Home, Video, FileText, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './FooterMenu.css';
 
 export default function FooterMenu() {
   const location = useLocation();
   const { user } = useAuth();
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+
+  const toggleMoreMenu = () => {
+    setShowMoreMenu(!showMoreMenu);
+  };
 
   return (
     <footer className="footer-menu">
@@ -25,16 +30,23 @@ export default function FooterMenu() {
         <span>PDFs</span>
       </Link>
 
-      {user ? (
-        <Link to="/profile" className={`footer-link ${location.pathname === '/profile' ? 'active' : ''}`}>
-          <User size={24} />
-          <span>Profile</span>
-        </Link>
-      ) : (
-        <Link to="/" className="footer-link">
-          <LogIn size={24} />
-          <span>Login</span>
-        </Link>
+      {user && (
+        <div className="footer-link" onClick={toggleMoreMenu} style={{ cursor: 'pointer' }}>
+          <Menu size={24} />
+          <span>More</span>
+        </div>
+      )}
+
+      {showMoreMenu && (
+        <div className="more-menu">
+          <Link to="/profile" onClick={() => setShowMoreMenu(false)}>
+            Profile
+          </Link>
+          <Link to="/subscription" onClick={() => setShowMoreMenu(false)}>
+            Subscription
+          </Link>
+          {/* Add more options here */}
+        </div>
       )}
     </footer>
   );
