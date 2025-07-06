@@ -18,11 +18,11 @@ export default function GoogleAuth() {
 
       if (decoded && decoded.email) {
         // ✅ Save to backend
-        const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', {
-          email: decoded.email,
-          name: decoded.name,
-          picture: decoded.picture,
-        });
+        const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/general?type=users', {
+  email: decoded.email,
+  name: decoded.name,
+  picture: decoded.picture,
+});
 
         console.log('Backend Response:', response.data);
 
