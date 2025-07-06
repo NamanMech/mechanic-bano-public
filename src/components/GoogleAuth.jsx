@@ -10,28 +10,30 @@ export default function GoogleAuth() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleSuccess = async (credentialResponse) => {
-    console.log('Credential Response:', credentialResponse);
-
     try {
-      const decoded = jwt_decode(credentialResponse.credential);
-      console.log('Decoded User:', decoded);
-
-      if (decoded && decoded.email) {
-        // ✅ Save to backend
-        const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/general?type=users', {
-  email: decoded.email,
-  name: decoded.name,
-  picture: decoded.picture,
-});
-
-        console.log('Backend Response:', response.data);
-
-        login(response.data, rememberMe);
-      } else {
-        alert('Invalid token data.');
+      if (!credentialResponse?.credential) {
+        alert('Login failed: No credential received.');
+        return;
       }
+
+      const decoded = jwt_decode(credentialResponse.credential);
+
+      if (!decoded?.email) {
+        alert('Login failed: Invalid token data.');
+        return;
+      }
+
+      // ✅ Save to backend
+      const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', {
+        email: decoded.email,
+        name: decoded.name,
+        picture: decoded.picture,
+      });
+
+      login(response.data, rememberMe);
+
     } catch (error) {
-      console.error('Token decode error:', error);
+      console.error('Login error:', error);
       alert('Error decoding token. Please try again.');
     }
   };
