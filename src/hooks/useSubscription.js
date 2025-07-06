@@ -1,22 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export default function useSubscription(email) {
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptionEnd, setSubscriptionEnd] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!email) {
-      setLoading(false);
-      return;
-    }
+    if (!email) return;
 
     const checkSubscription = async () => {
       try {
-        const response = await axios.get(`https://mechanic-bano-backend.vercel.app/api/checksubscription?email=${email}`);
+        const response = await axios.get(`https://mechanic-bano-backend.vercel.app/api/subscription?type=check&email=${email}`);
         setIsSubscribed(response.data.isSubscribed);
+        setSubscriptionEnd(response.data.subscriptionEnd);
       } catch (error) {
-        console.error('Error checking subscription', error);
+        console.error('Error checking subscription:', error);
       } finally {
         setLoading(false);
       }
@@ -25,5 +24,5 @@ export default function useSubscription(email) {
     checkSubscription();
   }, [email]);
 
-  return { isSubscribed, loading };
+  return { isSubscribed, subscriptionEnd, loading };
 }
