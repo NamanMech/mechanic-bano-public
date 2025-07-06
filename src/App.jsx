@@ -11,6 +11,7 @@ import Spinner from './components/Spinner';
 import NotFound from './pages/NotFound';
 import axios from 'axios';
 import { useAuth } from './context/AuthContext';
+import Subscription from './pages/Subscription';
 
 export default function App() {
   const [siteName, setSiteName] = useState('');
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/pdfs" element={<PDFList />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/subscription" element={<Subscription />} />
         </Routes>
       </div>
 
