@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
     try {
       // Save or update user in backend
       const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', userData);
-      const updatedUser = response.data.user;
+      const updatedUser = response.data; // ✅ Corrected here
 
       // Save updated user (with subscription info)
       if (remember) {
