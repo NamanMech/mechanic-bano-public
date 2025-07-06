@@ -1,4 +1,6 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -6,20 +8,29 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Check both localStorage and sessionStorage
     const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
   }, []);
 
-  const login = (userData, remember) => {
-    if (remember) {
-      localStorage.setItem('user', JSON.stringify(userData)); // Persistent
-    } else {
-      sessionStorage.setItem('user', JSON.stringify(userData)); // Clears on browser close
+  const login = async (userData, remember) => {
+    try {
+      // Save or update user in backend
+      const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', userData);
+      const updatedUser = response.data.user;
+
+      // Save updated user (with subscription info)
+      if (remember) {
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      } else {
+        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Error syncing user:', error);
+      alert('Login failed. Please try again.');
     }
-    setUser(userData);
   };
 
   const logout = () => {
@@ -37,41 +48,4 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   return useContext(AuthContext);
-}
-
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setIsSubscribed(parsedUser.isSubscribed);
-    }
-  }, []);
-
-  const login = (userData, remember) => {
-    if (remember) {
-      localStorage.setItem('user', JSON.stringify(userData));
-    } else {
-      sessionStorage.setItem('user', JSON.stringify(userData));
-    }
-    setUser(userData);
-    setIsSubscribed(userData.isSubscribed);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('user');
-    sessionStorage.removeItem('user');
-    setUser(null);
-    setIsSubscribed(false);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isSubscribed, setIsSubscribed }}>
-      {children}
-    </AuthContext.Provider>
-  );
 }
