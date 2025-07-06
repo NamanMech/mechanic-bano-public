@@ -57,7 +57,6 @@ export default function Subscription() {
               <h4>{plan.title}</h4>
               <p>Price: ₹{plan.price}</p>
               <p>Validity: {plan.days} days</p>
-              <p>Discount: {plan.discount || 0}%</p>
 
               {isCurrentPlan && <p style={{ color: 'green' }}>Your Current Plan ✅</p>}
 
