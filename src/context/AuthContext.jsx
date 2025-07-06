@@ -8,9 +8,22 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    try {
+      const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser && parsedUser.email) {
+          setUser(parsedUser);
+        } else {
+          // ❌ Corrupted data, auto-clear
+          localStorage.removeItem('user');
+          sessionStorage.removeItem('user');
+        }
+      }
+    } catch (error) {
+      // ❌ Parsing error, auto-clear
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
     }
   }, []);
 
@@ -18,7 +31,7 @@ export function AuthProvider({ children }) {
     try {
       // Save or update user in backend
       const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', userData);
-      const updatedUser = response.data; // ✅ Corrected here
+      const updatedUser = response.data.user;
 
       // Save updated user (with subscription info)
       if (remember) {
