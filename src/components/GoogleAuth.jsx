@@ -1,40 +1,40 @@
-// src/components/GoogleAuth.jsx
 import React, { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
-import jwt_decode from 'jwt-decode';
-import { useAuth } from '../context/AuthContext';
+import { GoogleLogin, googleLogout } from '@react-oauth/google';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 export default function GoogleAuth() {
   const { login } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSuccess = async (credentialResponse) => {
+  const handleSuccess = async (response) => {
     try {
-      if (!credentialResponse?.credential) {
+      const { credential } = response;
+
+      if (!credential) {
         alert('Login failed: No credential received.');
         return;
       }
 
-      const decoded = jwt_decode(credentialResponse.credential);
+      // ✅ Send credential directly to Google's userinfo API
+      const googleUser = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${credential}`);
 
-      if (!decoded?.email) {
-        alert('Login failed: Invalid token data.');
+      if (!googleUser?.data?.email) {
+        alert('Login failed: Unable to verify token.');
         return;
       }
 
       // ✅ Save to backend
-      const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', {
-        email: decoded.email,
-        name: decoded.name,
-        picture: decoded.picture,
+      const backendResponse = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', {
+        email: googleUser.data.email,
+        name: googleUser.data.name,
+        picture: googleUser.data.picture,
       });
 
-      login(response.data, rememberMe);
-
+      login(backendResponse.data, rememberMe);
     } catch (error) {
       console.error('Login error:', error);
-      alert('Error decoding token. Please try again.');
+      alert('Error during login. Please try again.');
     }
   };
 
