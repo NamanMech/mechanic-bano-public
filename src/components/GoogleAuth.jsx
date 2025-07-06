@@ -1,40 +1,29 @@
 import React, { useState } from 'react';
-import { GoogleLogin, googleLogout } from '@react-oauth/google';
-import axios from 'axios';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 export default function GoogleAuth() {
   const { login } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSuccess = async (response) => {
+  const handleSuccess = async (credentialResponse) => {
     try {
-      const { credential } = response;
-
-      if (!credential) {
+      if (!credentialResponse?.credential) {
         alert('Login failed: No credential received.');
         return;
       }
 
-      // ✅ Send credential directly to Google's userinfo API
-      const googleUser = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${credential}`);
-
-      if (!googleUser?.data?.email) {
-        alert('Login failed: Unable to verify token.');
-        return;
-      }
-
-      // ✅ Save to backend
-      const backendResponse = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', {
-        email: googleUser.data.email,
-        name: googleUser.data.name,
-        picture: googleUser.data.picture,
+      // ✅ Send token to backend
+      const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', {
+        token: credentialResponse.credential,
       });
 
-      login(backendResponse.data, rememberMe);
+      // ✅ Save user to Auth Context
+      login(response.data, rememberMe);
     } catch (error) {
       console.error('Login error:', error);
-      alert('Error during login. Please try again.');
+      alert('Login failed. Please try again.');
     }
   };
 
