@@ -15,13 +15,11 @@ export function AuthProvider({ children }) {
         if (parsedUser && parsedUser.email) {
           setUser(parsedUser);
         } else {
-          // ❌ Corrupted data, auto-clear
           localStorage.removeItem('user');
           sessionStorage.removeItem('user');
         }
       }
     } catch (error) {
-      // ❌ Parsing error, auto-clear
       localStorage.removeItem('user');
       sessionStorage.removeItem('user');
     }
@@ -29,19 +27,20 @@ export function AuthProvider({ children }) {
 
   const login = async (userData, remember) => {
     try {
-      // Save or update user in backend
       const response = await axios.post('https://mechanic-bano-backend.vercel.app/api/user', userData);
 
-      // ✅ Correct: Direct response
-      const updatedUser = response.data;
+      if (response.data && response.data.email) {
+        const updatedUser = response.data;
 
-      // Save updated user (with subscription info)
-      if (remember) {
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        if (remember) {
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+        } else {
+          sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+        setUser(updatedUser);
       } else {
-        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        alert('Login failed. Invalid response from server.');
       }
-      setUser(updatedUser);
     } catch (error) {
       console.error('Error syncing user:', error);
       alert('Login failed. Please try again.');
