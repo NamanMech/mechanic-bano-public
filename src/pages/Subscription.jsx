@@ -7,7 +7,7 @@ import useSubscription from '../hooks/useSubscription';
 
 export default function Subscription() {
   const { user } = useAuth();
-  const { subscriptionDays, loading: subscriptionLoading } = useSubscription(user?.email);
+  const { subscriptionDays, isSubscribed, loading: subscriptionLoading } = useSubscription(user?.email);
   const [plans, setPlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [activating, setActivating] = useState(false);
@@ -52,8 +52,15 @@ export default function Subscription() {
           const isCurrentPlan = subscriptionDays === parseInt(plan.days);
           const isLowerPlan = subscriptionDays > parseInt(plan.days);
 
+          let buttonText = 'Subscribe';
+          if (isSubscribed) {
+            if (isCurrentPlan) buttonText = 'Current Plan';
+            else if (isLowerPlan) buttonText = 'Lower Plan';
+            else buttonText = 'Upgrade';
+          }
+
           return (
-            <div key={plan._id} style={{ border: '1px solid gray', padding: '10px', marginTop: '10px', borderRadius: '8px' }}>
+            <div key={plan._id} style={cardStyle}>
               <h4>{plan.title}</h4>
               <p>Price: ₹{plan.price}</p>
               <p>Validity: {plan.days} days</p>
@@ -68,9 +75,10 @@ export default function Subscription() {
                   backgroundColor: isCurrentPlan || isLowerPlan ? 'gray' : '#1e88e5',
                   marginTop: '10px',
                   cursor: isCurrentPlan || isLowerPlan ? 'not-allowed' : 'pointer',
+                  width: '100%',
                 }}
               >
-                {isCurrentPlan ? 'Current Plan' : isLowerPlan ? 'Lower Plan' : activating ? 'Activating...' : 'Subscribe / Upgrade'}
+                {activating ? 'Processing...' : buttonText}
               </button>
             </div>
           );
@@ -79,3 +87,12 @@ export default function Subscription() {
     </div>
   );
 }
+
+const cardStyle = {
+  border: '1px solid #ddd',
+  borderRadius: '8px',
+  padding: '15px',
+  marginBottom: '15px',
+  boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+  backgroundColor: 'white',
+};
