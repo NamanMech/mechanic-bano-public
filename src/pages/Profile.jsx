@@ -8,18 +8,31 @@ import useSubscription from '../hooks/useSubscription';
 export default function Profile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { isSubscribed, loading } = useSubscription(user?.email);
+  const { isSubscribed, loading: subscriptionLoading } = useSubscription(user?.email);
   const [activating, setActivating] = useState(false);
+  const [plans, setPlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
 
-  if (!user) {
-    return <div style={{ textAlign: 'center', marginTop: '30px' }}>Please login to view profile.</div>;
-  }
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/subscriptionPlans');
+        setPlans(response.data);
+      } catch (error) {
+        alert('Error fetching plans.');
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
 
-  const handleSubscribe = async () => {
+    fetchPlans();
+  }, []);
+
+  const handleSubscribe = async (days) => {
     try {
       setActivating(true);
       await axios.put(`https://mechanic-bano-backend.vercel.app/api/subscribe?email=${user.email}`, {
-        days: 30,
+        days,
       });
       alert('Subscription Activated Successfully!');
       navigate('/videos');
@@ -35,7 +48,11 @@ export default function Profile() {
     navigate('/');
   };
 
-  if (loading) return <Spinner />;
+  if (!user) {
+    return <div style={{ textAlign: 'center', marginTop: '30px' }}>Please login to view profile.</div>;
+  }
+
+  if (subscriptionLoading || loadingPlans) return <Spinner />;
 
   return (
     <div className="profile-container">
@@ -49,14 +66,27 @@ export default function Profile() {
         ) : (
           <>
             <p style={{ color: 'red', marginTop: '10px' }}>Subscription Status: Inactive ❌</p>
-            <button
-              onClick={handleSubscribe}
-              disabled={activating}
-              className="logout-btn"
-              style={{ backgroundColor: '#1e88e5', marginTop: '10px' }}
-            >
-              {activating ? 'Activating...' : 'Activate 30 Days Subscription'}
-            </button>
+            <h3 style={{ marginTop: '30px' }}>Available Subscription Plans</h3>
+            {plans.length === 0 ? (
+              <p>No plans available.</p>
+            ) : (
+              plans.map((plan) => (
+                <div key={plan._id} style={{ border: '1px solid gray', padding: '10px', marginTop: '10px', borderRadius: '8px' }}>
+                  <h4>{plan.title}</h4>
+                  <p>Price: ₹{plan.price}</p>
+                  <p>Validity: {plan.days} days</p>
+                  <p>Discount: {plan.discount || 0}%</p>
+                  <button
+                    onClick={() => handleSubscribe(plan.days)}
+                    disabled={activating}
+                    className="logout-btn"
+                    style={{ backgroundColor: '#1e88e5', marginTop: '10px' }}
+                  >
+                    {activating ? 'Activating...' : 'Subscribe'}
+                  </button>
+                </div>
+              ))
+            )}
           </>
         )}
 
