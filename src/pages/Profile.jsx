@@ -30,6 +30,11 @@ export default function Profile() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   if (loading) return <Spinner />;
 
   return (
@@ -55,7 +60,7 @@ export default function Profile() {
           </>
         )}
 
-        <button onClick={logout} className="logout-btn" style={{ marginTop: '20px' }}>
+        <button onClick={handleLogout} className="logout-btn" style={{ marginTop: '20px' }}>
           Logout
         </button>
       </div>
