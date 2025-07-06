@@ -1,4 +1,3 @@
-// src/pages/Subscription.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
@@ -15,7 +14,8 @@ export default function Subscription() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/subscriptionPlans');
+        // ✅ Correct API
+        const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/subscription');
         setPlans(response.data);
       } catch (error) {
         alert('Error fetching plans.');
@@ -27,10 +27,11 @@ export default function Subscription() {
     fetchPlans();
   }, []);
 
-  const handleSubscribe = async (days) => {
+  const handleSubscribe = async (planId) => {
     try {
       setActivating(true);
-      await axios.put(`https://mechanic-bano-backend.vercel.app/api/subscribe?email=${user.email}`, { days });
+      // ✅ Correct API
+      await axios.put(`https://mechanic-bano-backend.vercel.app/api/user?email=${user.email}`, { planId });
       alert('Subscription Activated Successfully!');
       window.location.reload();
     } catch (error) {
@@ -68,7 +69,7 @@ export default function Subscription() {
               {isCurrentPlan && <p style={{ color: 'green' }}>Your Current Plan ✅</p>}
 
               <button
-                onClick={() => handleSubscribe(plan.days)}
+                onClick={() => handleSubscribe(plan._id)}
                 disabled={isCurrentPlan || isLowerPlan || activating}
                 className="logout-btn"
                 style={{
