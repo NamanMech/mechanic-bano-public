@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
+import PDFViewer from '../components/PDFViewer';
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
@@ -27,28 +28,30 @@ export default function PDFList() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>All PDFs</h2>
+      <h2 style={{ color: '#fff' }}>All PDF Tutorials</h2>
       {pdfs.length === 0 ? (
         <p style={{ textAlign: 'center' }}>No PDFs available</p>
       ) : (
-        <div className="video-grid">
+        <div className="video-grid" style={{ display: 'grid', gap: '30px' }}>
           {pdfs.map((pdf) => (
-            <div className="video-card" key={pdf._id} style={{ marginBottom: '30px' }}>
-              <h3>{pdf.title}</h3>
+            <div
+              className="pdf-card"
+              key={pdf._id}
+              style={{
+                background: '#f5f5f5',
+                padding: '15px',
+                borderRadius: '8px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+              }}
+            >
+              <h3 style={{ marginBottom: '5px', color: '#111' }}>{pdf.title}</h3>
+              <p style={{ fontSize: '14px', color: '#333', marginTop: '0px' }}>
+                Category: {pdf.category}
+              </p>
 
-              {/* ✅ Embed PDF using Google Docs Viewer */}
-              <iframe
-                src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
-                title={pdf.title}
-                width="100%"
-                height="400"
-                frameBorder="0"
-                style={{ border: '1px solid #ccc', borderRadius: '4px', marginTop: '10px' }}
-              ></iframe>
-
-              <span className="category-badge" style={{ marginTop: '10px', display: 'inline-block' }}>
-                {pdf.category}
-              </span>
+              <div style={{ marginTop: '10px' }}>
+                <PDFViewer url={pdf.originalLink} title={pdf.title} category={pdf.category} />
+              </div>
             </div>
           ))}
         </div>
