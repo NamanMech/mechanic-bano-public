@@ -1,84 +1,76 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Spinner from '../components/Spinner';
-import PDFViewer from '../components/PDFViewer';
+import React, { useEffect, useRef, useState } from 'react';
+import * as pdfjsLib from 'pdfjs-dist';
+import 'pdfjs-dist/web/pdf_viewer.css';
 
-export default function PDFList() {
-  const [pdfs, setPdfs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.2.146/build/pdf.worker.min.js';
 
-  const fetchPdfs = async () => {
-    try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/general?type=pdf');
-      setPdfs(response.data);
-    } catch (error) {
-      setError('Error fetching PDFs.');
-    } finally {
-      setLoading(false);
+const PDFViewer = ({ url }) => {
+  const canvasRef = useRef(null);
+  const [pdfDoc, setPdfDoc] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [error, setError] = useState('');
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const fetchPDF = async () => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('PDF fetch failed');
+        const buffer = await res.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        setPdfDoc(pdf);
+        setTotalPages(pdf.numPages);
+        setPage(1);
+      } catch (err) {
+        setError('Failed to render PDF.');
+        console.error(err.message);
+      }
+    };
+
+    fetchPDF();
+  }, [url]);
+
+  useEffect(() => {
+    const render = async () => {
+      if (!pdfDoc) return;
+      const pageObj = await pdfDoc.getPage(page);
+      const viewport = pageObj.getViewport({ scale: 1 });
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await pageObj.render({ canvasContext: context, viewport }).promise;
+    };
+
+    render();
+  }, [pdfDoc, page]);
+
+  const enterFull = () => {
+    if (containerRef.current?.requestFullscreen) {
+      containerRef.current.requestFullscreen();
     }
   };
 
-  useEffect(() => {
-    fetchPdfs();
-  }, []);
-
-  if (loading) return <Spinner />;
-  if (error) return <div style={{ color: 'red', textAlign: 'center', marginTop: '20px' }}>{error}</div>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>All PDFs</h2>
-
-      {pdfs.length === 0 ? (
-        <p style={{ textAlign: 'center' }}>No PDFs available</p>
-      ) : (
-        <div
-          className="video-grid"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '30px',
-            alignItems: 'center',
-          }}
-        >
-          {pdfs.map((pdf) => (
-            <div
-              key={pdf._id}
-              className="video-card"
-              style={{
-                padding: '16px',
-                borderRadius: '12px',
-                backgroundColor: '#fff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                maxWidth: '700px',
-                width: '100%',
-                boxSizing: 'border-box',
-              }}
-            >
-              <h3 style={{ marginBottom: '10px' }}>{pdf.title}</h3>
-
-              {/* ✅ Canvas PDF viewer with fullscreen */}
-              <PDFViewer url={pdf.originalLink} />
-
-              <span
-                className="category-badge"
-                style={{
-                  marginTop: '12px',
-                  display: 'inline-block',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  fontSize: '12px',
-                }}
-              >
-                {pdf.category}
-              </span>
-            </div>
-          ))}
+    <div ref={containerRef} style={{ textAlign: 'center' }}>
+      <canvas ref={canvasRef} style={{ maxWidth: '100%', border: '1px solid #ccc', borderRadius: '8px' }} />
+      
+      {totalPages > 1 && (
+        <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', gap: '15px' }}>
+          <button onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>◀</button>
+          <span>Page {page} of {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(p + 1, totalPages))} disabled={page === totalPages}>▶</button>
         </div>
       )}
+
+      <div style={{ marginTop: '8px' }}>
+        <button onClick={enterFull}>Enter Fullscreen</button>
+      </div>
     </div>
   );
-}
+};
+
+export default PDFViewer;
