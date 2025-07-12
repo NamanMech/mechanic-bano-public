@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
 import PDFViewer from '../components/PDFViewer';
+import { Lock } from 'lucide-react';
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
@@ -52,14 +53,32 @@ export default function PDFList() {
             >
               <h3>{pdf.title}</h3>
 
-              {/* ✅ Canvas-based viewer */}
-              <PDFViewer url={pdf.originalLink} />
+              {pdf.category === 'free' ? (
+                <PDFViewer url={pdf.originalLink} />
+              ) : (
+                <div
+                  style={{
+                    height: '400px',
+                    border: '2px dashed #ccc',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#888',
+                    background: '#f9f9f9',
+                  }}
+                >
+                  <Lock size={40} />
+                  <p style={{ marginTop: '10px' }}>Premium PDF - Locked</p>
+                </div>
+              )}
 
               <span
                 style={{
                   marginTop: '10px',
                   display: 'inline-block',
-                  backgroundColor: '#007bff',
+                  backgroundColor: pdf.category === 'free' ? '#28a745' : '#ffc107',
                   color: 'white',
                   padding: '4px 10px',
                   borderRadius: '20px',
