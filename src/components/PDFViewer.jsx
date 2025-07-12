@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // for pdfjs-dist@3.x
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
@@ -56,28 +56,19 @@ const PDFViewer = ({ url }) => {
   const toggleFullscreen = () => {
     const container = containerRef.current;
     if (!document.fullscreenElement) {
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      }
+      if (container.requestFullscreen) container.requestFullscreen();
+      else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
       setIsFullscreen(true);
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       setIsFullscreen(false);
     }
   };
 
   useEffect(() => {
     const handleFsChange = () => {
-      if (
-        !document.fullscreenElement &&
-        !document.webkitFullscreenElement
-      ) {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
         setIsFullscreen(false);
       }
     };
@@ -95,34 +86,26 @@ const PDFViewer = ({ url }) => {
     <div
       ref={containerRef}
       style={{
-        textAlign: 'center',
-        marginTop: '10px',
-        padding: '10px',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        background: '#fff',
-        boxSizing: 'border-box',
+        margin: '20px auto',
+        padding: '15px',
         maxWidth: '100%',
+        boxSizing: 'border-box',
+        background: '#fff',
+        borderRadius: '8px',
+        border: '1px solid #ccc',
+        overflowX: 'auto',
       }}
     >
       {error ? (
-        <p style={{ color: 'red' }}>{error}</p>
+        <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>
       ) : (
         <>
-          <div
-            style={{
-              overflowX: 'auto',
-              margin: '0 auto',
-            }}
-          >
-            <canvas ref={canvasRef} style={{ width: '100%', height: 'auto' }} />
-          </div>
+          <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', display: 'block', margin: '0 auto' }} />
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div
               style={{
-                marginTop: '8px',
+                marginTop: '10px',
                 display: 'flex',
                 justifyContent: 'center',
                 gap: '20px',
@@ -142,10 +125,9 @@ const PDFViewer = ({ url }) => {
             </div>
           )}
 
-          {/* Fullscreen Toggle */}
-          <div style={{ marginTop: '10px' }}>
+          <div style={{ marginTop: '10px', textAlign: 'center' }}>
             <button onClick={toggleFullscreen}>
-              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             </button>
           </div>
         </>
