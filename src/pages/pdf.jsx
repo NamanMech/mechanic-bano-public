@@ -2,40 +2,55 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
 import PDFViewer from '../components/PDFViewer';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import '../utils/firebaseConfig';
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [purchasedPDFIds, setPurchasedPDFIds] = useState([]); // 🔐 simulate purchased list
-
-  const fetchPdfs = async () => {
-    try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/general?type=pdf');
-      setPdfs(response.data);
-    } catch (error) {
-      setError('Error fetching PDFs.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [user, setUser] = useState(null);
+  const [purchasedPDFIds, setPurchasedPDFIds] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchPdfs = async () => {
+      try {
+        const res = await axios.get('https://mechanic-bano-backend.vercel.app/api/general?type=pdf');
+        setPdfs(res.data);
+      } catch {
+        console.error('Error fetching PDFs');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPdfs();
 
-    // 🔐 Simulate login & purchased PDF IDs
-    const dummyPurchased = JSON.parse(localStorage.getItem('purchasedPDFIds')) || [];
-    setPurchasedPDFIds(dummyPurchased);
+    // auth state check
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      if (u) {
+        const local = localStorage.getItem(`purchased_${u.uid}`);
+        setPurchasedPDFIds(local ? JSON.parse(local) : []);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const handlePurchase = (pdfId) => {
+  const handleBuy = (pdfId) => {
     const updated = [...purchasedPDFIds, pdfId];
-    localStorage.setItem('purchasedPDFIds', JSON.stringify(updated));
+    localStorage.setItem(`purchased_${user.uid}`, JSON.stringify(updated));
     setPurchasedPDFIds(updated);
   };
 
+  const handleLoginRedirect = () => {
+    navigate('/login'); // or show a login popup if you have one
+  };
+
   if (loading) return <Spinner />;
-  if (error) return <div style={{ color: 'red', textAlign: 'center', marginTop: '20px' }}>{error}</div>;
 
   return (
     <div style={{ padding: '20px' }}>
@@ -50,35 +65,52 @@ export default function PDFList() {
             const hasAccess = isFree || purchasedPDFIds.includes(pdf._id);
 
             return (
-              <div className="video-card" key={pdf._id} style={{ marginBottom: '30px' }}>
+              <div
+                key={pdf._id}
+                className="video-card"
+                style={{
+                  marginBottom: '30px',
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  backgroundColor: '#fefefe',
+                }}
+              >
                 <h3>{pdf.title}</h3>
 
                 {!hasAccess ? (
                   <div
                     style={{
-                      height: '300px',
-                      backgroundColor: '#f0f0f0',
+                      height: '250px',
                       display: 'flex',
+                      flexDirection: 'column',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      border: '1px solid #ccc',
+                      backgroundColor: '#f5f5f5',
                       borderRadius: '6px',
-                      flexDirection: 'column',
-                      padding: '10px',
+                      border: '1px dashed #ccc',
                     }}
                   >
-                    <p style={{ marginBottom: '10px' }}>
-                      This is a <strong>Premium PDF</strong>
-                    </p>
-                    <p style={{ marginBottom: '10px' }}>Price: ₹{pdf.price || 0}</p>
-                    <button onClick={() => handlePurchase(pdf._id)}>Buy Now</button>
+                    {user ? (
+                      <>
+                        <p>This is a <strong>Premium PDF</strong></p>
+                        <p>Price: ₹{pdf.price || 0}</p>
+                        <button onClick={() => handleBuy(pdf._id)}>Buy Now</button>
+                      </>
+                    ) : (
+                      <>
+                        <p>This is a <strong>Premium PDF</strong></p>
+                        <button onClick={handleLoginRedirect} style={{ marginTop: '10px' }}>
+                          🔒 Login to Buy
+                        </button>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <PDFViewer url={pdf.originalLink} />
                 )}
 
                 <span
-                  className="category-badge"
                   style={{
                     marginTop: '10px',
                     display: 'inline-block',
