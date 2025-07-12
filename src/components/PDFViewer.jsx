@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // ✅ required for Vite + pdfjs-dist@3.x
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
@@ -24,8 +24,8 @@ const PDFViewer = ({ url }) => {
         setTotalPages(pdf.numPages);
         setCurrentPage(1);
       } catch (err) {
-        console.error('PDF Error:', err.message);
-        setError('Cannot render PDF.');
+        console.error('PDF load error:', err.message);
+        setError('Cannot render PDF. Please check the file link.');
       }
     };
 
@@ -35,23 +35,46 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     const renderPage = async () => {
       if (!pdfDoc) return;
-      const page = await pdfDoc.getPage(currentPage);
-      const viewport = page.getViewport({ scale: 1.1 });
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      await page.render({ canvasContext: context, viewport }).promise;
+      try {
+        const page = await pdfDoc.getPage(currentPage);
+        const viewport = page.getViewport({ scale: 1.1 });
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport }).promise;
+      } catch (err) {
+        console.error('Render error:', err.message);
+      }
     };
 
     renderPage();
   }, [pdfDoc, currentPage]);
 
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
-
   return (
     <div style={{ textAlign: 'center', marginTop: '10px' }}>
-      <canvas ref={canvasRef} style={{ maxWidth: '100%', border: '1px solid #ccc', borderRadius: '8px' }} />
+      {error ? (
+        <p style={{ color: 'red' }}>{error}</p>
+      ) : (
+        <>
+          <div style={{ overflowX: 'auto', border: '1px solid #ccc', borderRadius: '6px', padding: '10px' }}>
+            <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto' }} />
+          </div>
+          {totalPages > 1 && (
+            <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+              <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1}>
+                ◀ Prev
+              </button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>
+                Next ▶
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
