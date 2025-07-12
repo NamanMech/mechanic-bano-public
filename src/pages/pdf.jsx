@@ -4,38 +4,26 @@ import Spinner from '../components/Spinner';
 import PDFViewer from '../components/PDFViewer';
 import { useGoogleLogin } from '@react-oauth/google';
 import jwt_decode from 'jwt-decode';
+import { useAuth } from '../context/AuthContext'; // ✅ use context
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
+  const { user, login, logout } = useAuth(); // ✅ from context
 
-  // Google OAuth Login Handler
-  const login = useGoogleLogin({
+  const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       const decoded = jwt_decode(tokenResponse.credential || tokenResponse.access_token);
-      localStorage.setItem('user', JSON.stringify(decoded)); // Save to localStorage
-      setUser(decoded);
+      await login(decoded, true); // ✅ update context + storage
     },
     onError: (err) => {
       console.error('Login failed:', err);
     }
   });
 
-  // Logout handler
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-  };
-
-  // Load user if previously logged in
   useEffect(() => {
     fetchPDFs();
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
   }, []);
 
   const fetchPDFs = async () => {
@@ -56,12 +44,11 @@ export default function PDFList() {
     <div style={{ padding: '20px' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>All PDFs</h2>
 
-      {/* Login/Logout Button */}
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
         {user ? (
-          <button onClick={handleLogout} style={{ padding: '8px 16px' }}>Logout</button>
+          <button onClick={logout} style={{ padding: '8px 16px' }}>Logout</button>
         ) : (
-          <button onClick={() => login()} style={{ padding: '8px 16px' }}>Login with Google</button>
+          <button onClick={() => googleLogin()} style={{ padding: '8px 16px' }}>Login with Google</button>
         )}
       </div>
 
@@ -71,7 +58,7 @@ export default function PDFList() {
         <div className="video-grid">
           {pdfs.map((pdf) => {
             const isPremium = pdf.category?.toLowerCase() === 'premium';
-            const hasPurchased = false; // 🔐 Placeholder — integrate payment system here
+            const hasPurchased = false; // 🔒 Replace with real logic later
 
             return (
               <div className="video-card" key={pdf._id} style={{ marginBottom: '40px' }}>
@@ -89,7 +76,7 @@ export default function PDFList() {
                   >
                     <p>This is a <strong>Premium PDF</strong>.</p>
                     <p>Please login to view or purchase it.</p>
-                    <button onClick={() => login()} style={{ marginTop: '10px' }}>Login to Buy</button>
+                    <button onClick={() => googleLogin()} style={{ marginTop: '10px' }}>Login to Buy</button>
                   </div>
                 ) : isPremium && !hasPurchased ? (
                   <div
@@ -108,7 +95,6 @@ export default function PDFList() {
                   <PDFViewer url={pdf.originalLink} />
                 )}
 
-                {/* Category Tag */}
                 <span
                   className="category-badge"
                   style={{
