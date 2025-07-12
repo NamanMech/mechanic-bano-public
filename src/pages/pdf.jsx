@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
-import PDFViewer from '../components/PDFViewer'; // ✅ Import PDFViewer
+import PDFViewer from '../components/PDFViewer'; // Using canvas viewer
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
@@ -28,7 +28,8 @@ export default function PDFList() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>All PDFs</h2>
+      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>All PDFs</h2>
+
       {pdfs.length === 0 ? (
         <p style={{ textAlign: 'center' }}>No PDFs available</p>
       ) : (
@@ -37,10 +38,20 @@ export default function PDFList() {
             <div className="video-card" key={pdf._id} style={{ marginBottom: '30px' }}>
               <h3>{pdf.title}</h3>
 
-              {/* ✅ Replaced iframe with canvas-based viewer */}
               <PDFViewer url={pdf.originalLink} />
 
-              <span className="category-badge" style={{ marginTop: '10px', display: 'inline-block' }}>
+              <span
+                className="category-badge"
+                style={{
+                  marginTop: '10px',
+                  display: 'inline-block',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  padding: '4px 10px',
+                  borderRadius: '20px',
+                  fontSize: '12px'
+                }}
+              >
                 {pdf.category}
               </span>
             </div>
