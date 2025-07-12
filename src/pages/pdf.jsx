@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
-import PDFViewer from '../components/PDFViewer'; // Using canvas viewer
+import PDFViewer from '../components/PDFViewer';
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
@@ -38,6 +38,7 @@ export default function PDFList() {
             <div className="video-card" key={pdf._id} style={{ marginBottom: '30px' }}>
               <h3>{pdf.title}</h3>
 
+              {/* ✅ Canvas PDF viewer */}
               <PDFViewer url={pdf.originalLink} />
 
               <span
