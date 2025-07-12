@@ -2,14 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // ✅ required for Vite + pdfjs-dist@3.x
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'; // for pdfjs-dist@3.x
 
 const PDFViewer = ({ url }) => {
   const canvasRef = useRef();
+  const containerRef = useRef();
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [error, setError] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const loadPDF = async () => {
@@ -51,17 +53,83 @@ const PDFViewer = ({ url }) => {
     renderPage();
   }, [pdfDoc, currentPage]);
 
+  const toggleFullscreen = () => {
+    const container = containerRef.current;
+    if (!document.fullscreenElement) {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      }
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      if (
+        !document.fullscreenElement &&
+        !document.webkitFullscreenElement
+      ) {
+        setIsFullscreen(false);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, []);
+
   return (
-    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+    <div
+      ref={containerRef}
+      style={{
+        textAlign: 'center',
+        marginTop: '10px',
+        padding: '10px',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        background: '#fff',
+        boxSizing: 'border-box',
+        maxWidth: '100%',
+      }}
+    >
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
         <>
-          <div style={{ overflowX: 'auto', border: '1px solid #ccc', borderRadius: '6px', padding: '10px' }}>
-            <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto' }} />
+          <div
+            style={{
+              overflowX: 'auto',
+              margin: '0 auto',
+            }}
+          >
+            <canvas ref={canvasRef} style={{ width: '100%', height: 'auto' }} />
           </div>
+
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+            <div
+              style={{
+                marginTop: '8px',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '20px',
+                flexWrap: 'wrap',
+                fontSize: '14px',
+              }}
+            >
               <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1}>
                 ◀ Prev
               </button>
@@ -73,6 +141,13 @@ const PDFViewer = ({ url }) => {
               </button>
             </div>
           )}
+
+          {/* Fullscreen Toggle */}
+          <div style={{ marginTop: '10px' }}>
+            <button onClick={toggleFullscreen}>
+              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+            </button>
+          </div>
         </>
       )}
     </div>
