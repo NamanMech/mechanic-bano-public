@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
 import PDFViewer from '../components/PDFViewer';
-import { Lock } from 'lucide-react';
 
 export default function PDFList() {
   const [pdfs, setPdfs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [purchasedPDFIds, setPurchasedPDFIds] = useState([]); // 🔐 simulate purchased list
 
   const fetchPdfs = async () => {
     try {
@@ -22,73 +22,78 @@ export default function PDFList() {
 
   useEffect(() => {
     fetchPdfs();
+
+    // 🔐 Simulate login & purchased PDF IDs
+    const dummyPurchased = JSON.parse(localStorage.getItem('purchasedPDFIds')) || [];
+    setPurchasedPDFIds(dummyPurchased);
   }, []);
 
+  const handlePurchase = (pdfId) => {
+    const updated = [...purchasedPDFIds, pdfId];
+    localStorage.setItem('purchasedPDFIds', JSON.stringify(updated));
+    setPurchasedPDFIds(updated);
+  };
+
   if (loading) return <Spinner />;
-  if (error)
-    return (
-      <div style={{ color: 'red', textAlign: 'center', marginTop: '20px' }}>{error}</div>
-    );
+  if (error) return <div style={{ color: 'red', textAlign: 'center', marginTop: '20px' }}>{error}</div>;
 
   return (
-    <div style={{ padding: '20px', paddingBottom: '100px' }}>
+    <div style={{ padding: '20px' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>All PDFs</h2>
 
       {pdfs.length === 0 ? (
         <p style={{ textAlign: 'center' }}>No PDFs available</p>
       ) : (
-        <div className="video-grid" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-          {pdfs.map((pdf) => (
-            <div
-              key={pdf._id}
-              style={{
-                padding: '16px',
-                backgroundColor: '#fff',
-                border: '1px solid #ddd',
-                borderRadius: '10px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                maxWidth: '100%',
-                boxSizing: 'border-box',
-              }}
-            >
-              <h3>{pdf.title}</h3>
+        <div className="video-grid">
+          {pdfs.map((pdf) => {
+            const isFree = pdf.category === 'free';
+            const hasAccess = isFree || purchasedPDFIds.includes(pdf._id);
 
-              {pdf.category === 'free' ? (
-                <PDFViewer url={pdf.originalLink} />
-              ) : (
-                <div
+            return (
+              <div className="video-card" key={pdf._id} style={{ marginBottom: '30px' }}>
+                <h3>{pdf.title}</h3>
+
+                {!hasAccess ? (
+                  <div
+                    style={{
+                      height: '300px',
+                      backgroundColor: '#f0f0f0',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      border: '1px solid #ccc',
+                      borderRadius: '6px',
+                      flexDirection: 'column',
+                      padding: '10px',
+                    }}
+                  >
+                    <p style={{ marginBottom: '10px' }}>
+                      This is a <strong>Premium PDF</strong>
+                    </p>
+                    <p style={{ marginBottom: '10px' }}>Price: ₹{pdf.price || 0}</p>
+                    <button onClick={() => handlePurchase(pdf._id)}>Buy Now</button>
+                  </div>
+                ) : (
+                  <PDFViewer url={pdf.originalLink} />
+                )}
+
+                <span
+                  className="category-badge"
                   style={{
-                    height: '400px',
-                    border: '2px dashed #ccc',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#888',
-                    background: '#f9f9f9',
+                    marginTop: '10px',
+                    display: 'inline-block',
+                    backgroundColor: isFree ? '#28a745' : '#ffc107',
+                    color: 'white',
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    fontSize: '12px',
                   }}
                 >
-                  <Lock size={40} />
-                  <p style={{ marginTop: '10px' }}>Premium PDF - Locked</p>
-                </div>
-              )}
-
-              <span
-                style={{
-                  marginTop: '10px',
-                  display: 'inline-block',
-                  backgroundColor: pdf.category === 'free' ? '#28a745' : '#ffc107',
-                  color: 'white',
-                  padding: '4px 10px',
-                  borderRadius: '20px',
-                  fontSize: '12px',
-                }}
-              >
-                {pdf.category}
-              </span>
-            </div>
-          ))}
+                  {isFree ? 'Free' : 'Premium'}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
