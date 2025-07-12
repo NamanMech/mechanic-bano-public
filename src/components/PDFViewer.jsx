@@ -1,58 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Spinner from '../components/Spinner';
+import React, { useEffect, useRef, useState } from 'react';
+import * as pdfjsLib from 'pdfjs-dist';
+import 'pdfjs-dist/web/pdf_viewer.css';
 
-export default function PDFList() {
-  const [pdfs, setPdfs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
-  const fetchPdfs = async () => {
-    try {
-      const response = await axios.get('https://mechanic-bano-backend.vercel.app/api/general?type=pdf');
-      setPdfs(response.data);
-    } catch (error) {
-      setError('Error fetching PDFs.');
-    } finally {
-      setLoading(false);
-    }
-  };
+const PDFViewer = ({ url }) => {
+  const canvasRef = useRef();
+  const [pdfDoc, setPdfDoc] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchPdfs();
-  }, []);
+    const loadPDF = async () => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch PDF');
+        const buffer = await response.arrayBuffer();
+        const pdfData = new Uint8Array(buffer);
 
-  if (loading) return <Spinner />;
-  if (error) return <div style={{ color: 'red', textAlign: 'center', marginTop: '20px' }}>{error}</div>;
+        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+        setPdfDoc(pdf);
+        setTotalPages(pdf.numPages);
+        setCurrentPage(1);
+      } catch (err) {
+        console.error('PDF Error:', err.message);
+        setError('Cannot render PDF.');
+      }
+    };
+
+    loadPDF();
+  }, [url]);
+
+  useEffect(() => {
+    const renderPage = async () => {
+      if (!pdfDoc) return;
+      const page = await pdfDoc.getPage(currentPage);
+      const viewport = page.getViewport({ scale: 1.1 });
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: context, viewport }).promise;
+    };
+
+    renderPage();
+  }, [pdfDoc, currentPage]);
+
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>All PDFs</h2>
-      {pdfs.length === 0 ? (
-        <p style={{ textAlign: 'center' }}>No PDFs available</p>
-      ) : (
-        <div className="video-grid">
-          {pdfs.map((pdf) => (
-            <div className="video-card" key={pdf._id} style={{ marginBottom: '30px' }}>
-              <h3>{pdf.title}</h3>
-
-              {/* ✅ Embed PDF using Google Docs Viewer */}
-              <iframe
-                src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdf.originalLink)}&embedded=true`}
-                title={pdf.title}
-                width="100%"
-                height="400"
-                frameBorder="0"
-                style={{ border: '1px solid #ccc', borderRadius: '4px', marginTop: '10px' }}
-              ></iframe>
-
-              <span className="category-badge" style={{ marginTop: '10px', display: 'inline-block' }}>
-                {pdf.category}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+      <canvas ref={canvasRef} style={{ maxWidth: '100%', border: '1px solid #ccc', borderRadius: '8px' }} />
     </div>
   );
-}
+};
+
+export default PDFViewer;
